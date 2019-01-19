@@ -1,5 +1,11 @@
 # Projekt_sql
 
-## Diagramy bazy danych
+## Diagram bazy danych
 
-![alt text](https://github.com/wikk2207/Projekt_sql/blob/master/mysql/diagram.png)
+![alt text](https://github.com/esavaner/Projekt_sql/blob/master/diagramy/diagram.png)
+
+## Diagram przypadków użycia aplikacji
+
+![alt text](https://github.com/esavaner/Projekt_sql/blob/master/diagramy/use_case.png)
+
+
