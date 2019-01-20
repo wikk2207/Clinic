@@ -12,7 +12,10 @@ import javafx.scene.layout.GridPane;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 
+import java.sql.*;
+
 public class Main extends Application {
+    static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
     String user = "admin";
     private TabPane tabs;
     private GridPane grid;
@@ -50,8 +53,32 @@ public class Main extends Application {
     }
 
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException {
+        Statement stmt = null;
+        try {
+            Class.forName(JDBC_DRIVER);
+            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/projekt_sql", "user", "standardsqlpass");
+            stmt = conn.createStatement();
+            String testquery = "Select imie, nazwisko, typ From Pracownicy";
+            ResultSet res = stmt.executeQuery(testquery);
+            while(res.next()) {
+                String imie = res.getString("imie");
+                String nazwisko = res.getString("nazwisko");
+                String typ = res.getString("typ");
+                System.out.println(imie + "\t" + nazwisko + "\t" + typ);
+            }
+        } catch(SQLException ex) {
+            ex.printStackTrace();
+        } catch(Exception e) {
+            e.printStackTrace();
+        }
+        finally {
+            if(stmt != null) {
+                stmt.close();
+                System.out.println("closed");
+            }
 
+        }
         launch(args);
     }
 
