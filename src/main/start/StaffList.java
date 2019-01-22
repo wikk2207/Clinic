@@ -19,13 +19,17 @@ public class StaffList extends Tab {
     private TableView<Staff> table = new TableView<Staff>();
     private ObservableList<Staff> data = FXCollections.observableArrayList();
     private Statement stmt = null;
+    private Button addStaffB;
     private Button refreshB;
     private FlowPane flow;
+    private Connection conn;
     public StaffList() {
         this.setText("Pracownicy");
         this.setClosable(false);
         this.setStyle("-fx-pref-width: 100");
         createTable();
+        addStaffB = new Button("Dodaj pracownika");
+        addStaffB.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> insert());
         refreshB = new Button("Odswiez");
         refreshB.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> refresh());
         flow = new FlowPane();
@@ -33,6 +37,7 @@ public class StaffList extends Tab {
         flow.setVgap(4);
         flow.setHgap(4);
         flow.setPrefWrapLength(1200);
+        flow.getChildren().add(addStaffB);
         flow.getChildren().add(refreshB);
         flow.getChildren().add(table);
         this.setContent(flow);
@@ -93,15 +98,17 @@ public class StaffList extends Tab {
                     }
                 }
         );
+        TableColumn delCol = new TableColumn("Akcja");
+        delCol.setCellValueFactory(new PropertyValueFactory<Staff, String>("deleteB"));
         table.setItems(data);
-        table.getColumns().addAll(idCol, nameCol, lnameCol, typeCol, specCol);
+        table.getColumns().addAll(idCol, nameCol, lnameCol, typeCol, specCol, delCol);
     }
 
     public void refresh() {
         try {
             data.clear();
             Class.forName(Main.JDBC_DRIVER);
-            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/projekt_sql", "user", "standardsqlpass");
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/projekt_sql", "user", "standardsqlpass");
             stmt = conn.createStatement();
             ResultSet res = stmt.executeQuery("SELECT staff_id, imie, nazwisko, typ, specjalizacja FROM Pracownicy");
             while(res.next()) {
@@ -127,5 +134,13 @@ public class StaffList extends Tab {
             }
 
         }
+    }
+
+    public void insert() {
+
+    }
+
+    public static void deleteStaff(int id) {
+        System.out.println(id);
     }
 }

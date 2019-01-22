@@ -16,22 +16,26 @@ import java.sql.*;
 
 public class Main extends Application {
     public static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
-    String user = "admin";
+    public static String login = null;
+    public static String pass = null;
+    private String user = "admin";
     private TabPane tabs;
     private GridPane grid;
-    private Text login;
-    private Text pass;
+    private Text loginT;
+    private Text passT;
     private TextField loginTF;
     private TextField passTF;
     private Button loginB;
     private Appointment app;
     private Results res;
     private AddResults add;
+    private Statement stmt = null;
+    private Connection conn;
     @Override
     public void start(Stage stage) {
         stage.setTitle("Projekt SQL");
-        login = new Text("Login");
-        pass = new Text("Hasło");
+        loginT = new Text("Login");
+        passT = new Text("Hasło");
         loginTF = new TextField();
         passTF = new TextField();
         loginB = new Button("Login");
@@ -42,8 +46,8 @@ public class Main extends Application {
         grid.setVgap(5);
         grid.setHgap(5);
         grid.setAlignment(Pos.CENTER);
-        grid.add(login, 0, 0);
-        grid.add(pass, 0, 1);
+        grid.add(loginT, 0, 0);
+        grid.add(passT, 0, 1);
         grid.add(loginTF, 1, 0);
         grid.add(passTF, 1, 1);
         grid.add(loginB, 1, 2);
@@ -59,6 +63,32 @@ public class Main extends Application {
     }
 
     public void login() {
+        login = loginT.getText();
+        pass = passT.getText();
+        /*
+        try {
+            Class.forName(JDBC_DRIVER);
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/projekt_sql", "user", "standardsqlpass");
+            stmt = conn.createStatement();
+            ResultSet res = stmt.executeQuery("SELECT id FROM Logins WHERE login = '" + login + "' AND pass = '" + pass + "';");
+            while(res.next()) {
+                int idS = res.getInt("id");
+            }
+        } catch(SQLException ex) {
+            ex.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        } finally {
+            if(stmt != null) {
+                try {
+                    stmt.close();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
+        */
         grid.getChildren().clear();
         tabs = new TabPane();
         tabs.setMinSize(1200,800);
