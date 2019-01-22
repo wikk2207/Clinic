@@ -1,4 +1,4 @@
-USE `Projekt_sql`;
+USE `projekt_sql`;
 
 DROP TABLE IF EXISTS Pacjenci;
 DROP PROCEDURE IF EXISTS fill_p;

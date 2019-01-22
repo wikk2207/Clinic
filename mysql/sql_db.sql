@@ -1,2 +1,2 @@
-CREATE DATABASE `Projekt_sql`;
-USE `Projekt_sql`;
+CREATE DATABASE `projekt_sql`;
+USE `projekt_sql`;

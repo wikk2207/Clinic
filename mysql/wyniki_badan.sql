@@ -1,4 +1,4 @@
-USE `Projekt_sql`;
+USE `projekt_sql`;
 DROP TABLE IF EXISTS Wyniki_badan;
 CREATE TABLE Wyniki_badan (wb_id int PRIMARY KEY AUTO_INCREMENT, data_wystawienia DATETIME, id_pacjenta int, id_lekarza int,
 FOREIGN KEY (id_pacjenta) REFERENCES Pacjenci(p_id), FOREIGN KEY (id_lekarza) REFERENCES Pracownicy(staff_id) );

@@ -1,4 +1,4 @@
-#USE `Projekt_sql`;
+USE `projekt_sql`;
 DROP TABLE IF EXISTS Wyniki_zawartosc;
 CREATE TABLE Wyniki_zawartosc (id_wynikow int, id_badania int , wartosc float, poprzednia_wartosc float DEFAULT NULL, uwagi varchar(100),
 FOREIGN KEY (id_wynikow) REFERENCES Wyniki_badan(wb_id), FOREIGN KEY (id_badania) REFERENCES Badania(b_id));

@@ -1,4 +1,4 @@
-USE `Projekt_sql`;
+USE `projekt_sql`;
 DROP table if exists wizyty;
 drop table if exists wyniki_zawartosc;
 drop table if exists wyniki_badan;
