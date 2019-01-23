@@ -2,7 +2,7 @@ USE `projekt_sql`;
 
 DROP TABLE IF EXISTS Pacjenci;
 DROP PROCEDURE IF EXISTS fill_p;
-CREATE TABLE Pacjenci (p_id int PRIMARY KEY AUTO_INCREMENT, imie varchar(45), nazwisko varchar(45), pesel char(11), data_urodzenia date);
+CREATE TABLE Pacjenci (p_id int PRIMARY KEY AUTO_INCREMENT, imie varchar(45), nazwisko varchar(45), pesel char(11), data_urodzenia date) AUTO_INCREMENT = 1000;
 
 DROP TABLE IF EXISTS Przyklady_pacjentow;
 CREATE table Przyklady_pacjentow (id int NOT NULL auto_increment, imie varchar (45), nazwisko varchar(45), primary key (id));

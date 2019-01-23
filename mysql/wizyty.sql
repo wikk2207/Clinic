@@ -14,7 +14,7 @@ BEGIN
     WHILE @i < 60 DO
 		SET @j = 0;
 		WHILE @j < 20 DO
-			SET @id_pacjenta = FLOOR((RAND()*2000)+1);
+			SET @id_pacjenta = FLOOR((RAND()*2000)+1000);
             SET @id_lekarza = FLOOR((RAND()*27)+3);
             SET @godzina_wizyty = FLOOR((RAND()*24)+1);
         

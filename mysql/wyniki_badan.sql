@@ -8,9 +8,9 @@ DROP PROCEDURE IF EXISTS fill_wb;
 DELIMITER $$
 CREATE PROCEDURE fill_wb() 
 BEGIN
-	SET @i = 1; #id pacjenta
+	SET @i = 1000; #id pacjenta
     
-    WHILE @i < 2001 DO #dla kazdego pacjenta
+    WHILE @i < 3000 DO #dla kazdego pacjenta
 		SET @rand_days = FLOOR((RAND()*1000)+200);
 		SET @data_wystawienia = DATE_SUB(NOW(), INTERVAL @rand_days DAY);
         SET @j = 0;
