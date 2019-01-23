@@ -4,10 +4,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
-import javafx.scene.control.Button;
-import javafx.scene.control.Tab;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.FlowPane;
@@ -23,7 +20,29 @@ public class StaffList extends Tab {
     private Button refreshB;
     private FlowPane flow;
     private Connection conn;
-    public StaffList() {
+    private Statement selectStaff;
+    private Statement insertStaff;
+    private static Statement deleteStaff;
+    public StaffList(Connection conn) {
+        this.conn = conn;
+        try {
+            selectStaff = conn.prepareStatement("SELECT staff_id, imie, nazwisko, typ, specjalizacja FROM pracownicy");
+        }
+        catch (SQLException e) {
+            System.out.println(e);
+        }
+        try {
+            deleteStaff = conn.prepareStatement("DELETE FROM pracownicy WHERE staff_id = ?");
+        }
+        catch (SQLException e) {
+            System.out.println(e);
+        }
+        try {
+            insertStaff = conn.prepareStatement("INSERT INTO pracownicy(imie, nazwisko, typ, specjalizacja) VALUES (?,?,?,?)");
+        }
+        catch (SQLException e) {
+            System.out.println(e);
+        }
         this.setText("Pracownicy");
         this.setClosable(false);
         this.setStyle("-fx-pref-width: 100");
@@ -99,6 +118,7 @@ public class StaffList extends Tab {
                 }
         );
         TableColumn delCol = new TableColumn("Akcja");
+        delCol.setPrefWidth(90);
         delCol.setCellValueFactory(new PropertyValueFactory<Staff, String>("deleteB"));
         table.setItems(data);
         table.getColumns().addAll(idCol, nameCol, lnameCol, typeCol, specCol, delCol);
@@ -107,10 +127,7 @@ public class StaffList extends Tab {
     public void refresh() {
         try {
             data.clear();
-            Class.forName(Main.JDBC_DRIVER);
-            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/projekt_sql", "user", "standardsqlpass");
-            stmt = conn.createStatement();
-            ResultSet res = stmt.executeQuery("SELECT staff_id, imie, nazwisko, typ, specjalizacja FROM Pracownicy");
+            ResultSet res = ((PreparedStatement) selectStaff).executeQuery();
             while(res.next()) {
                 int idS = res.getInt("staff_id");
                 String nameS = res.getString("imie");
@@ -121,26 +138,28 @@ public class StaffList extends Tab {
             }
         } catch(SQLException ex) {
             ex.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } finally {
-            if(stmt != null) {
-                try {
-                    stmt.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-                System.out.println("closed");
-            }
-
         }
     }
 
     public void insert() {
-
+        /*
+        try {
+            ((PreparedStatement) insertStaff).setString(1, Integer.toString(id));
+            ((PreparedStatement) insertStaff).executeUpdate();
+        }
+        catch(SQLException ex) {
+            ex.printStackTrace();
+        }
+        */
     }
 
     public static void deleteStaff(int id) {
-        System.out.println(id);
+        try {
+            ((PreparedStatement) deleteStaff).setString(1, Integer.toString(id));
+            ((PreparedStatement) deleteStaff).executeUpdate();
+        }
+        catch(SQLException ex) {
+            ex.printStackTrace();
+        }
     }
 }

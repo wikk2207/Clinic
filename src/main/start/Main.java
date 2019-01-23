@@ -71,33 +71,7 @@ public class Main extends Application {
     public void login() {
         login = loginTF.getText();
         pass = passTF.getText();
-        /*
-        try {
-            Class.forName(JDBC_DRIVER);
-            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/projekt_sql", "user", "standardsqlpass");
-            stmt = conn.createStatement();
-            ResultSet res = stmt.executeQuery("SELECT id FROM Logins WHERE login = '" + login + "' AND pass = '" + pass + "';");
-            while(res.next()) {
-                int idS = res.getInt("id");
-            }
-        } catch(SQLException ex) {
-            ex.printStackTrace();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-        } finally {
-            if(stmt != null) {
-                try {
-                    stmt.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-
-        }
-        */
         checkUser();
-
-
         grid.getChildren().clear();
         tabs = new TabPane();
         tabs.setMinSize(1200,800);
@@ -126,7 +100,7 @@ public class Main extends Application {
         app = new Appointment(conn, user, user_id);
         res = new Results();
         add = new AddResults();
-        StaffList stf = new StaffList();
+        StaffList stf = new StaffList(conn);
         tabs.getTabs().add(res);
         tabs.getTabs().add(add);
         tabs.getTabs().add(app);

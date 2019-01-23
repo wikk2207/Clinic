@@ -76,6 +76,8 @@ public class Staff {
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK){
             StaffList.deleteStaff(getId());
+            this.deleteB.setText("Usunieto");
+            this.deleteB.setDisable(true);
         } else {}
     }
 }
