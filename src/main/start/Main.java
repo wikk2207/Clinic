@@ -31,6 +31,9 @@ public class Main extends Application {
     private AddResults add;
     private Statement stmt = null;
     private Connection conn;
+    private int user_id;
+
+
     @Override
     public void start(Stage stage) {
         stage.setTitle("Projekt SQL");
@@ -120,7 +123,7 @@ public class Main extends Application {
             System.out.println(e);
         }
 
-        app = new Appointment(conn);
+        app = new Appointment(conn, user, user_id);
         res = new Results();
         add = new AddResults();
         StaffList stf = new StaffList();
@@ -137,7 +140,7 @@ public class Main extends Application {
         } catch (Exception e) {
             System.out.println(e);
         }
-        app = new Appointment(conn);
+        app = new Appointment(conn, user, user_id);
         res = new Results();
         tabs.getTabs().add(res);
         tabs.getTabs().add(app);
@@ -150,7 +153,7 @@ public class Main extends Application {
         } catch (Exception e) {
             System.out.println(e);
         }
-        app = new Appointment(conn);
+        app = new Appointment(conn, user,user_id);
         res = new Results();
         tabs.getTabs().add(res);
         tabs.getTabs().add(app);
@@ -164,7 +167,6 @@ public class Main extends Application {
     }
 
     private void checkUser() {
-        int user_id;
         try {
             Class.forName(JDBC_DRIVER);
             Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/projekt_sql", "admin", "a3d6m9i2n");
