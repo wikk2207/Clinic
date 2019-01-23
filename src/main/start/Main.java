@@ -39,6 +39,9 @@ public class Main extends Application {
         loginTF = new TextField();
         passTF = new TextField();
         loginB = new Button("Login");
+
+
+
         loginB.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> login());
         loginB.setStyle("-fx-background-color: mediumturquoise; -fx-textfill: white;");
         grid = new GridPane();
@@ -63,8 +66,8 @@ public class Main extends Application {
     }
 
     public void login() {
-        login = loginT.getText();
-        pass = passT.getText();
+        login = loginTF.getText();
+        pass = passTF.getText();
         /*
         try {
             Class.forName(JDBC_DRIVER);
@@ -89,6 +92,9 @@ public class Main extends Application {
 
         }
         */
+        checkUser();
+
+
         grid.getChildren().clear();
         tabs = new TabPane();
         tabs.setMinSize(1200,800);
@@ -138,4 +144,53 @@ public class Main extends Application {
         tabs.getTabs().add(res);
         tabs.getTabs().add(add);
     }
+
+    private void checkUser() {
+        int user_id;
+        try {
+            Class.forName(JDBC_DRIVER);
+            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/projekt_sql", "admin", "a3d6m9i2n");
+
+            Statement stmt1 = con.prepareStatement("SELECT u_id FROM Uzytkownicy WHERE login=? AND haslo=?;");
+            Statement stmt2 = con.prepareStatement("SELECT typ FROM Pracownicy WHERE staff_id=?;");
+            ((PreparedStatement) stmt1).setString(1, login);
+            ((PreparedStatement) stmt1).setString(2, pass);
+
+            ResultSet rs = ((PreparedStatement) stmt1).executeQuery();
+            if(rs.next()!=false) {
+                //TODO print test
+                System.out.println("Znaleziono uzytkownika");
+                user_id = rs.getInt(1);
+                System.out.println("id= "+user_id);
+                if(user_id<1000) { //pracownik
+                    ((PreparedStatement) stmt2).setInt(1,user_id);
+                    ResultSet rs2 = ((PreparedStatement) stmt2).executeQuery();
+                    if(rs2.next()==false) System.out.println("brak wyniku");
+                    String type = rs2.getString(1);
+                    //todo print
+                    System.out.println(type);
+                    if(type.equals("lekarz")) {
+                        user = "doctor";
+                        //TODO print test
+                        System.out.println("Zalogowano jako lekarz o i=" + user_id);
+                    } else if(type.equals("admin")) {
+                        user = "admin";
+
+                    } else if(type.equals("sekretarka")) {
+                        user = "secretary";
+                    }
+                } else {
+                    user="user";
+                }
+            } else {
+                System.out.println("Nie znaleziono takiego uzytkownika");
+            }
+            con.close();
+        } catch(SQLException ex) {
+            ex.printStackTrace();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
 }
+
