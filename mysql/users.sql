@@ -9,7 +9,7 @@ GRANT SELECT ON projekt_sql.Wizyty TO 'lekarz'@'localhost';
 GRANT SELECT ON projekt_sql.Badania TO 'lekarz'@'localhost';
 GRANT SELECT ON projekt_sql.Godziny TO 'lekarz'@'localhost';
 
-CREATE USER 'pacjent'@'localhost' IDENTIFIED BY 's5e3k1r2e4t';
+CREATE USER 'pacjent'@'localhost' IDENTIFIED BY 'p4a8c2j6e0n1t';
 GRANT SELECT, INSERT, DELETE ON projekt_sql.Wizyty TO 'pacjent'@'localhost';
 GRANT SELECT ON projekt_sql.Pracownicy TO 'pacjent'@'localhost';
 GRANT SELECT ON projekt_sql.Wyniki_badan TO 'pacjent'@'localhost';
@@ -17,7 +17,7 @@ GRANT SELECT ON projekt_sql.Wyniki_zawartosc TO 'pacjent'@'localhost';
 GRANT SELECT ON projekt_sql.Badania TO 'pacjent'@'localhost';
 GRANT SELECT ON projekt_sql.Godziny TO 'pacjent'@'localhost';
 
-CREATE USER 'sekretarka'@'localhost' IDENTIFIED BY'p4a8c2j6e0n1t';
+CREATE USER 'sekretarka'@'localhost' IDENTIFIED BY 's5e3k1r2e4t';
 GRANT SELECT, INSERT, UPDATE, DELETE ON projekt_sql.Wizyty TO 'sekretarka'@'localhost';
 GRANT SELECT, INSERT, UPDATE ON projekt_sql.Pacjenci TO 'sekretarka'@'localhost';
 GRANT SELECT ON projekt_sql.Pracownicy TO 'sekretarka'@'localhost';

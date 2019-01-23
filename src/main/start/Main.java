@@ -114,7 +114,13 @@ public class Main extends Application {
     }
 
     public void adminLogin() {
-        app = new Appointment();
+        try {
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/projekt_sql", "admin", "a3d6m9i2n");
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
+        app = new Appointment(conn);
         res = new Results();
         add = new AddResults();
         StaffList stf = new StaffList();
@@ -125,14 +131,26 @@ public class Main extends Application {
     }
 
     public void userLogin() {
-        app = new Appointment();
+        try {
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/projekt_sql", "pacjent", "p4a8c2j6e0n1t");
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        app = new Appointment(conn);
         res = new Results();
         tabs.getTabs().add(res);
         tabs.getTabs().add(app);
     }
 
     public void secretaryLogin() {
-        app = new Appointment();
+        try {
+            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/projekt_sql", "sekretarka", "s5e3k1r2e4t");
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+        app = new Appointment(conn);
         res = new Results();
         tabs.getTabs().add(res);
         tabs.getTabs().add(app);
