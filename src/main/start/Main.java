@@ -89,7 +89,7 @@ public class Main extends Application {
 
     public void adminLogin() {
         try {
-            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/projekt_sql", "admin", "a3d6m9i2n");
+            conn = DriverManager.getConnection("jdbc:mysql://cucumber02.myqnapcloud.com:3306/projekt_sql", "admin", "a3d6m9i2n");
         } catch (Exception e) {
             System.out.println(e);
         }
@@ -106,7 +106,7 @@ public class Main extends Application {
 
     public void userLogin() {
         try {
-            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/projekt_sql", "pacjent", "p4a8c2j6e0n1t");
+            conn = DriverManager.getConnection("jdbc:mysql://cucumber02.myqnapcloud.com:3306/projekt_sql", "pacjent", "p4a8c2j6e0n1t");
 
         } catch (Exception e) {
             System.out.println(e);
@@ -119,7 +119,7 @@ public class Main extends Application {
 
     public void secretaryLogin() {
         try {
-            conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/projekt_sql", "sekretarka", "s5e3k1r2e4t");
+            conn = DriverManager.getConnection("jdbc:mysql://cucumber02.myqnapcloud.com:3306/projekt_sql", "sekretarka", "s5e3k1r2e4t");
 
         } catch (Exception e) {
             System.out.println(e);
@@ -140,7 +140,7 @@ public class Main extends Application {
     private void checkUser() {
         try {
             Class.forName(JDBC_DRIVER);
-            Connection con = DriverManager.getConnection("jdbc:mysql://localhost:3306/projekt_sql", "admin", "a3d6m9i2n");
+            Connection con = DriverManager.getConnection("jdbc:mysql://cucumber02.myqnapcloud.com:3306/projekt_sql", "admin", "a3d6m9i2n");
 
             Statement stmt1 = con.prepareStatement("SELECT u_id FROM Uzytkownicy WHERE login=? AND haslo=?;");
             Statement stmt2 = con.prepareStatement("SELECT typ FROM Pracownicy WHERE staff_id=?;");

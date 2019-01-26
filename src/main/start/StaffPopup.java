@@ -1,7 +1,5 @@
 package main.start;
 
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -71,29 +69,5 @@ public class StaffPopup {
             grid.add(warning, 1, 5);
         }
 
-    }
-
-    private void setName(String name) {
-        this.name = name;
-    }
-
-    private void setLName(String lname) {
-        this.lname = lname;
-    }
-
-    private void setType(String type) {
-        this.type = type;
-    }
-
-    private void setSpec(String spec) {
-        this.spec = spec;
-    }
-
-    private String getName() {
-        return this.name;
-    }
-
-    private String getLname() {
-        return this.lname;
     }
 }
