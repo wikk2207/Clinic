@@ -42,9 +42,6 @@ public class Main extends Application {
         loginTF = new TextField();
         passTF = new TextField();
         loginB = new Button("Login");
-
-
-
         loginB.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> login());
         loginB.setStyle("-fx-background-color: mediumturquoise; -fx-textfill: white;");
         grid = new GridPane();

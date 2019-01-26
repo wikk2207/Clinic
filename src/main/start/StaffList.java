@@ -21,7 +21,11 @@ public class StaffList extends Tab {
     private FlowPane flow;
     private Connection conn;
     private Statement selectStaff;
-    private Statement insertStaff;
+    private static Statement insertStaff;
+    private Statement updateStaffName;
+    private Statement updateStaffLName;
+    private Statement updateStaffType;
+    private Statement updateStaffSpec;
     private static Statement deleteStaff;
     public StaffList(Connection conn) {
         this.conn = conn;
@@ -43,12 +47,36 @@ public class StaffList extends Tab {
         catch (SQLException e) {
             System.out.println(e);
         }
+        try {
+            updateStaffName = conn.prepareStatement("UPDATE Pracownicy SET imie = ? WHERE staff_id = ?");
+        }
+        catch (SQLException e) {
+            System.out.println(e);
+        }
+        try {
+            updateStaffLName = conn.prepareStatement("UPDATE Pracownicy SET nazwisko = ? WHERE staff_id = ?");
+        }
+        catch (SQLException e) {
+            System.out.println(e);
+        }
+        try {
+            updateStaffType = conn.prepareStatement("UPDATE Pracownicy SET typ = ? WHERE staff_id = ?");
+        }
+        catch (SQLException e) {
+            System.out.println(e);
+        }
+        try {
+            updateStaffSpec = conn.prepareStatement("UPDATE Pracownicy SET specjalizacja = ? WHERE staff_id = ?");
+        }
+        catch (SQLException e) {
+            System.out.println(e);
+        }
         this.setText("Pracownicy");
         this.setClosable(false);
         this.setStyle("-fx-pref-width: 100");
         createTable();
         addStaffB = new Button("Dodaj pracownika");
-        addStaffB.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> insert());
+        addStaffB.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> popup());
         refreshB = new Button("Odswiez");
         refreshB.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> refresh());
         flow = new FlowPane();
@@ -78,6 +106,14 @@ public class StaffList extends Tab {
                     @Override
                     public void handle(TableColumn.CellEditEvent<Staff, String> t) {
                         ((Staff) t.getTableView().getItems().get(t.getTablePosition().getRow())).setFirstName(t.getNewValue());
+                        try {
+                            ((PreparedStatement) updateStaffName).setInt(2, ((Staff) t.getTableView().getItems().get(t.getTablePosition().getRow())).getId());
+                            ((PreparedStatement) updateStaffName).setString(1, t.getNewValue());
+                            ((PreparedStatement) updateStaffName).executeUpdate();
+                        }
+                        catch(SQLException ex) {
+                            ex.printStackTrace();
+                        }
                     }
                 }
         );
@@ -90,6 +126,13 @@ public class StaffList extends Tab {
                     @Override
                     public void handle(TableColumn.CellEditEvent<Staff, String> t) {
                         ((Staff) t.getTableView().getItems().get(t.getTablePosition().getRow())).setLastName(t.getNewValue());
+                        try {
+                            ((PreparedStatement) updateStaffLName).setInt(2, ((Staff) t.getTableView().getItems().get(t.getTablePosition().getRow())).getId());
+                            ((PreparedStatement) updateStaffLName).setString(1, t.getNewValue());
+                            ((PreparedStatement) updateStaffLName).executeUpdate();
+                        } catch (SQLException ex) {
+                            ex.printStackTrace();
+                        }
                     }
                 }
         );
@@ -102,6 +145,14 @@ public class StaffList extends Tab {
                     @Override
                     public void handle(TableColumn.CellEditEvent<Staff, String> t) {
                         ((Staff) t.getTableView().getItems().get(t.getTablePosition().getRow())).setType(t.getNewValue());
+                        try {
+                            ((PreparedStatement) updateStaffType).setInt(2, ((Staff) t.getTableView().getItems().get(t.getTablePosition().getRow())).getId());
+                            ((PreparedStatement) updateStaffType).setString(1, t.getNewValue());
+                            ((PreparedStatement) updateStaffType).executeUpdate();
+                        }
+                        catch(SQLException ex) {
+                            ex.printStackTrace();
+                        }
                     }
                 }
         );
@@ -114,6 +165,14 @@ public class StaffList extends Tab {
                     @Override
                     public void handle(TableColumn.CellEditEvent<Staff, String> t) {
                         ((Staff) t.getTableView().getItems().get(t.getTablePosition().getRow())).setSpec(t.getNewValue());
+                        try {
+                            ((PreparedStatement) updateStaffSpec).setInt(2, ((Staff) t.getTableView().getItems().get(t.getTablePosition().getRow())).getId());
+                            ((PreparedStatement) updateStaffSpec).setString(1, t.getNewValue());
+                            ((PreparedStatement) updateStaffSpec).executeUpdate();
+                        }
+                        catch(SQLException ex) {
+                            ex.printStackTrace();
+                        }
                     }
                 }
         );
@@ -141,25 +200,32 @@ public class StaffList extends Tab {
         }
     }
 
-    public void insert() {
-        /*
+    public void popup() {
+        StaffPopup p = new StaffPopup();
+        p.display();
+    }
+
+    public static void insert(String name, String lname, String type, String spec) {
         try {
-            ((PreparedStatement) insertStaff).setString(1, Integer.toString(id));
+            ((PreparedStatement) insertStaff).setString(1, name);
+            ((PreparedStatement) insertStaff).setString(2, lname);
+            ((PreparedStatement) insertStaff).setString(3, type);
+            ((PreparedStatement) insertStaff).setString(4, spec);
             ((PreparedStatement) insertStaff).executeUpdate();
         }
         catch(SQLException ex) {
             ex.printStackTrace();
         }
-        */
     }
 
     public static void deleteStaff(int id) {
         try {
-            ((PreparedStatement) deleteStaff).setString(1, Integer.toString(id));
+            ((PreparedStatement) deleteStaff).setInt(1, id);
             ((PreparedStatement) deleteStaff).executeUpdate();
         }
         catch(SQLException ex) {
             ex.printStackTrace();
         }
     }
+
 }
