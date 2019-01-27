@@ -15,8 +15,8 @@ import javafx.geometry.Pos;
 import java.sql.*;
 
 public class Main extends Application {
-    //public  static final String HOST = "jdbc:mysql://cucumber02.myqnapcloud.com:3306/projekt_sql";
-    public  static final String HOST = "jdbc:mysql://localhost:3306/projekt_sql";
+    public  static final String HOST = "jdbc:mysql://cucumber02.myqnapcloud.com:3306/projekt_sql";
+    //public  static final String HOST = "jdbc:mysql://localhost:3306/projekt_sql";
     public static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
     public static String login = null;
     public static String pass = null;
@@ -100,9 +100,11 @@ public class Main extends Application {
         res = new Results();
         add = new AddResults();
         StaffList stf = new StaffList(conn);
+        PatientList plist = new PatientList(conn, user);
         tabs.getTabs().add(res);
         tabs.getTabs().add(add);
         tabs.getTabs().add(app);
+        tabs.getTabs().add(plist);
         tabs.getTabs().add(stf);
     }
 
