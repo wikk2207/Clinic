@@ -163,6 +163,7 @@ public class Appointment extends Tab {
         return userPesel;
     }
 
+    //TODO połączyć specjalizacje i date w jedno okno
     private void chooseSpecialization(FlowPane flowPane, VBox vBox) {
         vBox.getChildren().clear();
 
@@ -328,7 +329,7 @@ public class Appointment extends Tab {
             ResultSet rs = ((PreparedStatement) statement).executeQuery();
             while (rs.next()) {
                 String beg = rs.getString(1);
-                data.add(new VisitTime(date, beg));
+                data.add(new VisitTime(date, beg, idDoctor,id, con));
             }
         } catch (Exception e) {
             System.out.println(e);
