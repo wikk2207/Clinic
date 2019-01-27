@@ -16,6 +16,7 @@ public class Staff {
     private final SimpleStringProperty type;
     private final SimpleStringProperty spec;
     private Button deleteB;
+    private String imieNazwisko;
 
     public Staff(int id, String fName, String lName, String type, String spec) {
         this.id = new SimpleIntegerProperty(id);
@@ -79,5 +80,13 @@ public class Staff {
             this.deleteB.setText("Usunieto");
             this.deleteB.setDisable(true);
         } else {}
+    }
+
+    public String getImieNazwisko() {
+        return imieNazwisko;
+    }
+
+    public void setImieNazwisko(String imieNazwisko) {
+        this.imieNazwisko = imieNazwisko;
     }
 }
