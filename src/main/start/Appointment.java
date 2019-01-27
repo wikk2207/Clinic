@@ -105,6 +105,7 @@ public class Appointment extends Tab {
 
     //zabezpieczone
     private void findUser(FlowPane flowPane, VBox vBox) {
+        addBorderPane.setBottom(null);
         flowPane.getChildren().clear();
         vBox.getChildren().clear();
 
@@ -164,11 +165,20 @@ public class Appointment extends Tab {
     }
 
     //TODO połączyć specjalizacje i date w jedno okno
+    //dostosowane do pacjenta
     private void chooseSpecialization(FlowPane flowPane, VBox vBox) {
+        Text textTop = new Text(null);
         vBox.getChildren().clear();
+        if(userType.equals("sekretarka") || userType.equals("admin")) {
+            textTop= new Text("Wybrany pacjent: " +imieNazwiskoPacjenta);
+            vBox.getChildren().add(textTop);
+            Button backButton = new Button("Powrót");
+            backButton.setOnAction(event -> {
+                findUser(flowPane, vBox);
+            });
+            addBorderPane.setBottom(backButton);
+        }
 
-        Text textTop = new Text("Wybrany pacjent: " +imieNazwiskoPacjenta);
-        vBox.getChildren().add(textTop);
         flowPane.getChildren().clear();
         addBorderPane.setBottom(null);
         Text text = new Text("Wybierz specjalizację");
@@ -176,14 +186,14 @@ public class Appointment extends Tab {
         ArrayList<MenuItem> menuItems = new ArrayList<>();
         String s;
         Button nextButton = new Button("dalej");
+
+        Text text1 = textTop; //XD zeby sie nie rzucal o final w lamda expr
         nextButton.setOnAction(event -> {
+
             specialization = menuButton.getText();
-            chooseDate(flowPane, vBox, textTop);
+            chooseDate(flowPane, vBox, text1);
         });
-        Button backButton = new Button("Powrót");
-        backButton.setOnAction(event -> {
-            findUser(flowPane, vBox);
-        });
+
 
         try {
             ResultSet rs = stmt.executeQuery("SELECT DISTINCT specjalizacja FROM pracownicy WHERE specjalizacja IS NOT NULL ORDER BY specjalizacja ;");
@@ -200,13 +210,18 @@ public class Appointment extends Tab {
         } catch (Exception e) {
             System.out.println(e);
         }
-        addBorderPane.setBottom(backButton);
+
 
     }
 
+    //dost do pacjenta
     private void chooseDate(FlowPane flowPane, VBox vBox, Text patient) {
+
         vBox.getChildren().clear();
-        vBox.getChildren().add(patient);
+        if(userType.equals("sekretarka") || userType.equals("admin")) {
+            vBox.getChildren().add(patient);
+        }
+
 
         Text spec = new Text("Szukany lekarz: "+specialization);
         vBox.getChildren().add(spec);
@@ -244,9 +259,17 @@ public class Appointment extends Tab {
 
     }
 
+    //dost do pacjenta
     private void showAppointments(FlowPane flowPane, VBox vBox, Text patient, Text spec) {
         vBox.getChildren().clear();
-        vBox.getChildren().addAll(patient, spec);
+
+        if(userType.equals("sekretarka") || userType.equals("admin")) {
+            vBox.getChildren().addAll(patient, spec);
+        } else {
+            vBox.getChildren().addAll(spec);
+        }
+
+
 
         Text chooseText = new Text("Wybierz lekarza: ");
 
