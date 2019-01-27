@@ -1,4 +1,4 @@
-package main.start;
+package patients;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -9,13 +9,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
 
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import staff.Staff;
 
 import java.sql.*;
 

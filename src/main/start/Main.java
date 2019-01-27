@@ -11,6 +11,8 @@ import javafx.scene.text.*;
 import javafx.scene.layout.GridPane;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import patients.PatientList;
+import staff.StaffList;
 
 import java.sql.*;
 

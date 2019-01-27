@@ -1,4 +1,4 @@
-package main.start;
+package staff;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -10,6 +10,7 @@ import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.FlowPane;
 
 import javafx.scene.input.MouseEvent;
+
 import java.sql.*;
 
 public class StaffList extends Tab {
