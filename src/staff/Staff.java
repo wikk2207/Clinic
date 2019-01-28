@@ -6,6 +6,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.input.MouseEvent;
+import results.ShowResults;
 import staff.StaffList;
 
 import java.util.Optional;
@@ -18,6 +19,8 @@ public class Staff {
     private final SimpleStringProperty spec;
     private Button deleteB;
     private String imieNazwisko;
+    private Button selectB;
+    private ShowResults showResults;
 
     public Staff(int id, String fName, String lName, String type, String spec) {
         this.id = new SimpleIntegerProperty(id);
@@ -27,6 +30,8 @@ public class Staff {
         this.spec = new SimpleStringProperty(spec);
         this.deleteB = new Button("Usun");
         this.deleteB.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> deleteB());
+        selectB = new Button("Wybierz");
+        selectB.setOnAction(event -> {select();});
     }
 
     public int getId() {
@@ -89,5 +94,17 @@ public class Staff {
 
     public void setImieNazwisko(String imieNazwisko) {
         this.imieNazwisko = imieNazwisko;
+    }
+
+    public Button getSelectB() {
+        return selectB;
+    }
+
+    public void setShowResults(ShowResults showResults) {
+        this.showResults = showResults;
+    }
+
+    private void select() {
+        showResults.setDoctorId(id.get());
     }
 }

@@ -103,7 +103,7 @@ public class Main extends Application {
         }
 
         app = new Appointment(conn, user, user_id);
-        res = new ShowResults();
+        res = new ShowResults(user, user_id, conn);
         add = new AddResults();
         StaffList stf = new StaffList(conn);
         PatientList plist = new PatientList(conn, user);
@@ -122,7 +122,7 @@ public class Main extends Application {
             System.out.println(e);
         }
         app = new Appointment(conn, user, user_id);
-        res = new ShowResults();
+        res = new ShowResults(user, user_id, conn);
         tabs.getTabs().add(res);
         tabs.getTabs().add(app);
     }
@@ -135,7 +135,7 @@ public class Main extends Application {
             System.out.println(e);
         }
         app = new Appointment(conn, user,user_id);
-        res = new ShowResults();
+        res = new ShowResults(user, user_id, conn);
         tabs.getTabs().add(res);
         tabs.getTabs().add(app);
     }
@@ -148,7 +148,7 @@ public class Main extends Application {
             System.out.println(e);
         }
 
-        res = new ShowResults();
+        res = new ShowResults(user, user_id, conn);
         add = new AddResults();
         app = new Appointment(conn, user, user_id);
         tabs.getTabs().addAll(res,add,app);

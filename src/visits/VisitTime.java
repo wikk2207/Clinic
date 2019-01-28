@@ -25,7 +25,6 @@ public class VisitTime {
     private Connection con;
     private int idVisit;
 
-//todo zapisuj id wizyty
     VisitTime(String date, String time, int idDoctor, int idPatient, Connection con, String nameDoc, String specialization, String namePat, int idVisit) {
         this.date = new SimpleStringProperty(date);
         this.time = new SimpleStringProperty(time);
@@ -108,7 +107,6 @@ public class VisitTime {
 
     }
 
-    //TODO uzupełnić usuwanie
     @SuppressWarnings("Duplicates")
     private void deleleVisit() {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);

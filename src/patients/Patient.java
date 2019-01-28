@@ -8,6 +8,7 @@ package patients;
         import javafx.scene.control.ButtonType;
         import javafx.scene.input.MouseEvent;
         import patients.PatientList;
+        import results.ShowResults;
 
         import java.util.Optional;
 
@@ -18,6 +19,8 @@ public class Patient {
     private final SimpleStringProperty pesel;
     private final SimpleStringProperty date;
     private Button deleteB;
+    private Button selectB;
+    private ShowResults showResults;
 
     public Patient(int id, String fName, String lName, String pesel, String date) {
         this.id = new SimpleIntegerProperty(id);
@@ -27,7 +30,10 @@ public class Patient {
         this.date = new SimpleStringProperty(date);
         this.deleteB = new Button("Usun");
         this.deleteB.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> deleteB());
+        selectB = new Button("Wybierz");
+        selectB.setOnAction(event -> {select();});
     }
+
 
     public int getId() {
         return id.get();
@@ -79,5 +85,17 @@ public class Patient {
             this.deleteB.setText("Usunieto");
             this.deleteB.setDisable(true);
         } else {}
+    }
+
+    public Button getSelectB() {
+        return selectB;
+    }
+
+    public void setShowResults(ShowResults showResults) {
+        this.showResults = showResults;
+    }
+
+    private void select() {
+        showResults.setPatientId(id.get());
     }
 }
