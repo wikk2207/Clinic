@@ -1,4 +1,4 @@
-package main.start;
+package visits;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.Alert;
@@ -15,21 +15,35 @@ import java.util.Optional;
 public class VisitTime {
     private final SimpleStringProperty date;
     private final SimpleStringProperty time;
+    private final SimpleStringProperty nameDoc;
+    private final SimpleStringProperty namePat;
+    private final SimpleStringProperty specialization;
     private Button chooseB;
+    private Button deleteB;
     private int idDoctor;
     private int idPatient;
     private Connection con;
+    private int idVisit;
 
-
-    VisitTime(String date, String time, int idDoctor, int idPatient, Connection con) {
+//todo zapisuj id wizyty
+    VisitTime(String date, String time, int idDoctor, int idPatient, Connection con, String nameDoc, String specialization, String namePat, int idVisit) {
         this.date = new SimpleStringProperty(date);
         this.time = new SimpleStringProperty(time);
+        this.nameDoc = new SimpleStringProperty(nameDoc);
+        this.specialization = new SimpleStringProperty(specialization);
         this.idDoctor=idDoctor;
         this.idPatient=idPatient;
         this.con=con;
+        this.idVisit=idVisit;
+        this.namePat= new SimpleStringProperty(namePat);
         chooseB = new Button("X");
         chooseB.setOnAction(event -> {
             addVisit();
+        });
+
+        deleteB = new Button("X");
+        deleteB.setOnAction(event -> {
+            deleleVisit();
         });
     }
 
@@ -92,5 +106,44 @@ public class VisitTime {
             System.out.println(e);
         }
 
+    }
+
+    //TODO uzupełnić usuwanie
+    @SuppressWarnings("Duplicates")
+    private void deleleVisit() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Odwołanie wizyty");
+        alert.setHeaderText(null);
+        alert.setContentText("Czy na pewno chcesz odwolac wizyte "+date.get()+" o godzinie " +time.get()+"?");
+        alert.setHeight(300);
+        alert.setWidth(450);
+
+        try {
+            Statement stmt = con.prepareStatement("DELETE FROM wizyty WHERE w_id=?");
+            ((PreparedStatement) stmt).setInt(1, idVisit);
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == ButtonType.OK){
+                ((PreparedStatement) stmt).executeUpdate();
+                deleteB.setDisable(true);
+            } else {}
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    };
+
+    public String getNameDoc() {
+        return nameDoc.get();
+    }
+
+
+    public String getSpecialization() {
+        return specialization.get();
+    }
+    public Button getDeleteB() {
+        return deleteB;
+    }
+
+    public String getNamePat() {
+        return namePat.get();
     }
 }
