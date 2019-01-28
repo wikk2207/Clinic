@@ -9,6 +9,8 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import staff.StaffList;
@@ -66,8 +68,9 @@ public class StaffPopup {
             popupwindow.close();
         }
         else {
-            Label warning = new Label("Pola nie moga byc puste!");
-            grid.add(warning, 1, 5);
+            Text errorL = new Text("Pola nie moga byc puste!");
+            errorL.setFill(Color.RED);
+            grid.add(errorL, 1, 5);
         }
 
     }

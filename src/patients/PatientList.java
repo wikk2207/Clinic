@@ -8,6 +8,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
 
 import javafx.scene.input.MouseEvent;
@@ -28,27 +29,24 @@ public class PatientList extends Tab {
     private BorderPane borderPane;
     private GridPane gridPane;
     private Connection conn;
-    private Statement selectPatient;
     private static Statement insertPatient;
     private Statement updatePatientName;
     private Statement updatePatientLName;
     private Statement updatePatientPesel;
     private Statement updatePatientDate;
+    private Statement searchPatient;
     private static Statement deletePatient;
     private String user = null;
     private TextField nameTF;
     private TextField lnameTF;
     private TextField peselTF;
     private TextField dateTF;
+    private TextField nameSearchTF;
+    private TextField lnameSearchTF;
+    private TextField peselSearchTF;
     public PatientList(Connection conn, String user) {
         this.conn = conn;
         this.user = user;
-        try {
-            selectPatient = conn.prepareStatement("SELECT p_id, imie, nazwisko, pesel, data_urodzenia FROM pacjenci");
-        }
-        catch (SQLException e) {
-            System.out.println(e);
-        }
         try {
             deletePatient = conn.prepareStatement("DELETE FROM pacjenci WHERE p_id = ?");
         }
@@ -85,30 +83,49 @@ public class PatientList extends Tab {
         catch (SQLException e) {
             System.out.println(e);
         }
+        try {
+            searchPatient = conn.prepareStatement(
+                    "SELECT p_id, imie, nazwisko, pesel, data_urodzenia FROM pacjenci " +
+                            "WHERE UPPER(imie) LIKE UPPER(?) AND UPPER(nazwisko) LIKE UPPER(?) AND UPPER(pesel) LIKE UPPER(?)");
+        }
+        catch (SQLException e) {
+            System.out.println(e);
+        }
         this.setText("Pacjenci");
         this.setClosable(false);
         this.setStyle("-fx-pref-width: 100");
         createTable();
         Label addPatientL = new Label("Dodawanie Pacjenta");
-        addPatientL.setFont(new Font("Arial", 17));
+        Label searchPatientL = new Label("Szukanie Pacjenta");
+        addPatientL.setFont(new Font("Arial", 20));
+        searchPatientL.setFont(new Font("Arial", 20));
         Label nameL = new Label("Imie:");
         Label lnameL = new Label("Nazwisko:");
         Label peselL = new Label("Pesel:");
         Label dateL = new Label("Data Urodzenia:");
+        Label nameSL = new Label("Imie:");
+        Label lnameSL = new Label("Nazwisko:");
+        Label peselSL = new Label("Pesel:");
         nameTF = new TextField();
         lnameTF = new TextField();
         peselTF = new TextField();
         dateTF = new TextField();
+        nameSearchTF = new TextField();
+        nameSearchTF.addEventHandler(KeyEvent.KEY_RELEASED, event -> refresh());
+        lnameSearchTF = new TextField();
+        lnameSearchTF.addEventHandler(KeyEvent.KEY_RELEASED, event -> refresh());
+        peselSearchTF = new TextField();
+        peselSearchTF.addEventHandler(KeyEvent.KEY_RELEASED, event -> refresh());
         addPatientB = new Button("Dodaj pacjenta");
         addPatientB.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> insert(nameTF.getText(), lnameTF.getText(), peselTF.getText(), dateTF.getText()));
         refreshB = new Button("Odswiez");
         refreshB.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> refresh());
         borderPane = new BorderPane();
         gridPane = new GridPane();
-        gridPane.setPadding(new Insets(5, 0, 5, 0));
+        gridPane.setPadding(new Insets(10));
         gridPane.setVgap(4);
-        gridPane.setHgap(4);
-        gridPane.add(addPatientL, 0, 0);
+        gridPane.setHgap(10);
+        gridPane.add(addPatientL, 0, 0, 3,1);
         gridPane.add(nameL, 0, 1);
         gridPane.add(lnameL, 1, 1);
         gridPane.add(peselL, 2, 1);
@@ -117,6 +134,13 @@ public class PatientList extends Tab {
         gridPane.add(lnameTF, 1, 2);
         gridPane.add(peselTF, 2, 2);
         gridPane.add(dateTF, 3, 2);
+        gridPane.add(searchPatientL, 0, 3, 3,1);
+        gridPane.add(nameSL, 0, 4);
+        gridPane.add(lnameSL, 1, 4);
+        gridPane.add(peselSL, 2, 4);
+        gridPane.add(nameSearchTF, 0, 5);
+        gridPane.add(lnameSearchTF, 1, 5);
+        gridPane.add(peselSearchTF, 2, 5);
         gridPane.add(addPatientB, 4, 2);
         borderPane.setTop(gridPane);
         borderPane.setCenter(table);
@@ -222,9 +246,16 @@ public class PatientList extends Tab {
     }
 
     public void refresh() {
+        String nameSearch = nameSearchTF.getText();
+        String lnameSearch = lnameSearchTF.getText();
+        String peselSearch = peselSearchTF.getText();
         try {
             data.clear();
-            ResultSet res = ((PreparedStatement) selectPatient).executeQuery();
+            ((PreparedStatement) searchPatient).setString(1, "%" + nameSearch + "%");
+            ((PreparedStatement) searchPatient).setString(2, "%" + lnameSearch + "%");
+            ((PreparedStatement) searchPatient).setString(3, "%" + peselSearch + "%");
+            ((PreparedStatement) searchPatient).executeQuery();
+            ResultSet res = ((PreparedStatement) searchPatient).executeQuery();
             while(res.next()) {
                 int idS = res.getInt("p_id");
                 String nameS = res.getString("imie");
@@ -265,6 +296,10 @@ public class PatientList extends Tab {
         catch(SQLException ex) {
             ex.printStackTrace();
         }
+    }
+
+    public void filterName(String name) {
+
     }
 
 }

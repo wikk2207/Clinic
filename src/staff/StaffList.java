@@ -1,5 +1,7 @@
 package staff;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.EventHandler;
@@ -7,9 +9,14 @@ import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
+import javafx.scene.input.KeyEvent;
+import javafx.scene.layout.Border;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
+import javafx.scene.text.Font;
 
 import java.sql.*;
 
@@ -19,7 +26,8 @@ public class StaffList extends Tab {
     private Statement stmt = null;
     private Button addStaffB;
     private Button refreshB;
-    private FlowPane flow;
+    private BorderPane borderPane;
+    private GridPane gridPane;
     private Connection conn;
     private Statement selectStaff;
     private static Statement insertStaff;
@@ -28,10 +36,17 @@ public class StaffList extends Tab {
     private Statement updateStaffType;
     private Statement updateStaffSpec;
     private static Statement deleteStaff;
+    private TextField nameSearchTF;
+    private TextField lnameSearchTF;
+    private ChoiceBox typeCB;
+    private ChoiceBox specCB;
     public StaffList(Connection conn) {
         this.conn = conn;
         try {
-            selectStaff = conn.prepareStatement("SELECT staff_id, imie, nazwisko, typ, specjalizacja FROM pracownicy");
+            selectStaff = conn.prepareStatement("SELECT staff_id, imie, nazwisko, typ, specjalizacja FROM pracownicy " +
+                    "WHERE UPPER(imie) LIKE UPPER(?) AND UPPER(nazwisko) LIKE UPPER(?) " +
+                    "AND (UPPER(typ) LIKE UPPER(?) OR typ IS NULL) " +
+                    "AND (UPPER(specjalizacja) LIKE UPPER(?) OR specjalizacja IS NULL)");
         }
         catch (SQLException e) {
             System.out.println(e);
@@ -80,15 +95,41 @@ public class StaffList extends Tab {
         addStaffB.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> popup());
         refreshB = new Button("Odswiez");
         refreshB.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> refresh());
-        flow = new FlowPane();
-        flow.setPadding(new Insets(5, 0, 5, 0));
-        flow.setVgap(4);
-        flow.setHgap(4);
-        flow.setPrefWrapLength(1200);
-        flow.getChildren().add(addStaffB);
-        flow.getChildren().add(refreshB);
-        flow.getChildren().add(table);
-        this.setContent(flow);
+        Label searchStaffL = new Label("Szukanie Pracownika");
+        searchStaffL.setFont(new Font("Arial", 20));
+        Label nameL = new Label("Imie:");
+        Label lnameL = new Label("Nazwisko:");
+        Label typeL = new Label("Typ:");
+        Label specL = new Label("Specjalizacja:");
+        nameSearchTF = new TextField();
+        nameSearchTF.addEventHandler(KeyEvent.KEY_RELEASED, event -> refresh());
+        lnameSearchTF = new TextField();
+        lnameSearchTF.addEventHandler(KeyEvent.KEY_RELEASED, event -> refresh());
+        typeCB = new ChoiceBox(FXCollections.observableArrayList("", "Admin", "Lekarz", "Sekretarka"));
+        typeCB.getSelectionModel().selectFirst();
+        typeCB.getSelectionModel().selectedItemProperty().addListener((ObservableValue observableValue, Object o, Object t1) -> refresh());
+        specCB = new ChoiceBox(FXCollections.observableArrayList("", "endokrynolog", "pediatra", "dermatolog", "lekarz rodzinny", "ginekolog", "okulista", "alergolog"));
+        specCB.getSelectionModel().selectFirst();
+        specCB.getSelectionModel().selectedItemProperty().addListener((ObservableValue observableValue, Object o, Object t1) -> refresh());
+        gridPane = new GridPane();
+        borderPane = new BorderPane();
+        gridPane.setPadding(new Insets(15));
+        gridPane.setVgap(4);
+        gridPane.setHgap(10);
+        gridPane.add(addStaffB,0,0);
+        gridPane.add(refreshB,3,0);
+        gridPane.add(searchStaffL,0,1,3,1);
+        gridPane.add(nameL,0,2);
+        gridPane.add(lnameL,1,2);
+        gridPane.add(typeL,2,2);
+        gridPane.add(specL,3,2);
+        gridPane.add(nameSearchTF,0,3);
+        gridPane.add(lnameSearchTF,1,3);
+        gridPane.add(typeCB,2,3);
+        gridPane.add(specCB,3,3);
+        borderPane.setTop(gridPane);
+        borderPane.setCenter(table);
+        this.setContent(borderPane);
         refresh();
     }
 
@@ -185,8 +226,17 @@ public class StaffList extends Tab {
     }
 
     public void refresh() {
+        String nameSearch = nameSearchTF.getText();
+        String lnameSearch = lnameSearchTF.getText();
+        String typeSearch = (String)typeCB.getSelectionModel().getSelectedItem();
+        String specSearch = (String)specCB.getSelectionModel().getSelectedItem();
         try {
             data.clear();
+            ((PreparedStatement) selectStaff).setString(1, "%" + nameSearch + "%");
+            ((PreparedStatement) selectStaff).setString(2, "%" + lnameSearch + "%");
+            ((PreparedStatement) selectStaff).setString(3, "%" + typeSearch + "%");
+            ((PreparedStatement) selectStaff).setString(4, "%" + specSearch + "%");
+            ((PreparedStatement) selectStaff).executeQuery();
             ResultSet res = ((PreparedStatement) selectStaff).executeQuery();
             while(res.next()) {
                 int idS = res.getInt("staff_id");
