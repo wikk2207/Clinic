@@ -15,21 +15,33 @@ import java.util.Optional;
 public class VisitTime {
     private final SimpleStringProperty date;
     private final SimpleStringProperty time;
+    private final SimpleStringProperty nameDoc;
+    private final SimpleStringProperty namePat;
+    private final SimpleStringProperty specialization;
     private Button chooseB;
+    private Button deleteB;
     private int idDoctor;
     private int idPatient;
     private Connection con;
 
-
-    VisitTime(String date, String time, int idDoctor, int idPatient, Connection con) {
+//todo zapisuj id wizyty
+    VisitTime(String date, String time, int idDoctor, int idPatient, Connection con, String nameDoc, String specialization, String namePat) {
         this.date = new SimpleStringProperty(date);
         this.time = new SimpleStringProperty(time);
+        this.nameDoc = new SimpleStringProperty(nameDoc);
+        this.specialization = new SimpleStringProperty(specialization);
         this.idDoctor=idDoctor;
         this.idPatient=idPatient;
         this.con=con;
+        this.namePat= new SimpleStringProperty(namePat);
         chooseB = new Button("X");
         chooseB.setOnAction(event -> {
             addVisit();
+        });
+
+        deleteB = new Button("X");
+        deleteB.setOnAction(event -> {
+            deleleVisit();
         });
     }
 
@@ -92,5 +104,26 @@ public class VisitTime {
             System.out.println(e);
         }
 
+    }
+
+    //TODO uzupełnić usuwanie
+    private void deleleVisit() {
+
+    };
+
+    public String getNameDoc() {
+        return nameDoc.get();
+    }
+
+
+    public String getSpecialization() {
+        return specialization.get();
+    }
+    public Button getDeleteB() {
+        return deleteB;
+    }
+
+    public String getNamePat() {
+        return namePat.get();
     }
 }

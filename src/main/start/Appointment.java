@@ -10,13 +10,13 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
 import java.sql.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Observable;
+import java.util.*;
 
 public class Appointment extends Tab {
     private Connection con;
@@ -33,6 +33,7 @@ public class Appointment extends Tab {
     private String date;
     String imieNazwiskoPacjenta;
     int day, month, year;
+    private int idDoctor;
 
     public Appointment(Connection con, String userType, int id) {
         this.setText("Wizyty");
@@ -51,26 +52,308 @@ public class Appointment extends Tab {
             //
         }
 
-        buildAddAppointmentTab();
+        if(!userType.equals("doctor")) {
+            buildAddAppointmentTab();
+        }
+        buildShowAppointmentTab();
 
-        showAppointmentsT = new Tab("Pokaż wizyty");
-        showAppointmentsT.setClosable(false);
-        tabPane.getTabs().addAll( showAppointmentsT);
+
 
         this.setContent(tabPane);
+    }
 
-       /* try {
-            Statement statement = con.createStatement();
-            ResultSet rs = statement.executeQuery("SELECT id_lekarza, id_pacjenta FROM Wizyty WHERE godzina_wizyty>15;");
-            while (rs.next()) {
-                System.out.println(rs.getInt(1)+ " " + rs.getInt(2));
-            }
 
-        } catch (Exception e) {
-            //
-        }*/
+
+    // ********** POKAZ WIZYTY ***********
+
+    private void buildShowAppointmentTab() {
+        showAppointmentsT = new Tab("Pokaż wizyty");
+        showAppointmentsT.setClosable(false);
+        tabPane.getTabs().add( showAppointmentsT);
+
+
+        showBorderPane =  new BorderPane();
+        FlowPane flowPane = new FlowPane();
+        flowPane.setHgap(10);
+        flowPane.setVgap(10);
+        showBorderPane.setTop(flowPane);
+
+        Button plannedButton = new Button("Zaplanowane");
+        plannedButton.setOnAction(event -> {
+            show(true);
+
+        });
+        Button previousButton = new Button("Zrealizowane");
+        previousButton.setOnAction(event -> {
+           show(false);
+
+        });
+
+        flowPane.getChildren().addAll(plannedButton, previousButton);
+
+
+
+        showAppointmentsT.setContent(showBorderPane);
 
     }
+
+    @SuppressWarnings("Duplicates")
+    private void patientOrDoctor(boolean planned) {
+        showBorderPane.setCenter(null);
+
+        VBox vBox = new VBox();
+        vBox.setSpacing(10);
+        vBox.setAlignment(Pos.CENTER);
+        showBorderPane.setCenter(vBox);
+
+        Text text = new Text("Czyje wizyty chcesz wyswietlic?");
+
+        ToggleGroup group = new ToggleGroup();
+        RadioButton rb1 = new RadioButton("pacjent");
+        rb1.setToggleGroup(group);
+        rb1.setSelected(true);
+        RadioButton rb2 = new RadioButton("lekarz");
+        rb2.setToggleGroup(group);
+
+        Button button = new Button("Dalej");
+        button.setOnAction(event -> {
+            if(rb1.isSelected()) {
+                 findUserShow(planned);
+            }
+            if(rb2.isSelected()) {
+                findDoctor(planned);
+            }
+
+        });
+
+        vBox.getChildren().addAll(text,rb1, rb2,button);
+
+    }
+
+    private void show(boolean planned) {
+        if(userType.equals("secretary")) {
+            findUserShow(planned);
+        } else if(userType.equals("admin")){
+            patientOrDoctor(planned);
+        } else if (userType.equals("doctor")){
+            idDoctor=id;
+            buildShowTabForDoctor(planned);
+
+        } else if (userType.equals("user")){
+            buildShowTabForPatient(planned);
+        }
+    }
+
+    @SuppressWarnings("Duplicates")
+    private void findDoctor(boolean planned) {
+        showBorderPane.setCenter(null);
+
+        VBox vBox = new VBox();
+        vBox.setSpacing(10);
+        vBox.setAlignment(Pos.CENTER);
+        showBorderPane.setCenter(vBox);
+
+        Text t1 = new Text("Imie lekarza");
+        Text t2 = new Text("Nazwisko lekarza");
+        TextField textField1 = new TextField();
+        TextField textField2 = new TextField();
+        textField1.setMaxWidth(150);
+        textField2.setMaxWidth(150);
+        Button b = new Button("Dalej");
+        b.setOnAction(event -> {
+            if(findDoctorByName(textField1.getText(), textField2.getText())) {
+                buildShowTabForDoctor(planned);
+            } else {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Uwaga!");
+                alert.setHeaderText(null);
+                alert.setContentText("Lekarz o podanym imieniu i nazwisku nie istnieje!");
+                alert.showAndWait();
+            }
+        });
+
+        vBox.getChildren().addAll(t1,textField1,t2, textField2,b);
+
+
+
+    }
+
+    private boolean findDoctorByName(String firstname, String surname) {
+        boolean result = false;
+
+        try {
+            Statement stmt = con.prepareStatement("SELECT staff_id FROM pracownicy WHERE imie=? AND nazwisko=? AND typ=\"lekarz\";");
+            ((PreparedStatement) stmt).setString(1, firstname);
+            ((PreparedStatement) stmt).setString(2, surname);
+            ResultSet rs = ((PreparedStatement) stmt).executeQuery();
+
+            if(rs.next()) {
+                idDoctor=rs.getInt(1);
+                result = true;
+            } else {
+                result = false;
+            }
+        } catch (Exception e){
+            System.out.println(e);
+        }
+
+        return result;
+    }
+
+    @SuppressWarnings("Duplicates")
+    private void buildShowTabForPatient(boolean planned) {
+        FlowPane flowPane = new FlowPane();
+        flowPane.setHgap(10);
+        flowPane.setVgap(10);
+        showBorderPane.setCenter(flowPane);
+
+        TableView table = new TableView();
+        table.setPrefWidth(700);
+        table.setEditable(false);
+
+        ObservableList<VisitTime> data = FXCollections.observableArrayList();
+
+        TableColumn dateColumn = new TableColumn("Data");
+        dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
+
+        TableColumn timeColumn = new TableColumn("Godzina");
+        timeColumn.setCellValueFactory(new PropertyValueFactory<>("time"));
+
+        TableColumn nameColumn = new TableColumn("Imie i nazwisko lekarza");
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("nameDoc"));
+        nameColumn.setPrefWidth(200);
+
+        TableColumn specColumn = new TableColumn("Specjalizacja");
+        specColumn.setCellValueFactory(new PropertyValueFactory<>("specialization"));
+
+        TableColumn deleteColumn = new TableColumn("Odwolaj");
+        deleteColumn.setCellValueFactory(new PropertyValueFactory<>("deleteB"));
+        try {
+            Statement statement;
+            if(planned) {
+                statement = con.prepareStatement("SELECT data_wizyty, poczatek, imie, nazwisko, specjalizacja FROM wizyty A JOIN godziny B ON A.godzina_wizyty=B.g_id JOIN pracownicy C ON A.id_lekarza=C.staff_id " +
+                        "WHERE id_pacjenta=? AND data_wizyty>=curdate() ORDER BY data_wizyty, poczatek;");
+            } else {
+                statement = con.prepareStatement("SELECT data_wizyty, poczatek, imie, nazwisko, specjalizacja FROM wizyty A JOIN godziny B ON A.godzina_wizyty=B.g_id JOIN pracownicy C ON A.id_lekarza=C.staff_id " +
+                            "WHERE id_pacjenta=? AND data_wizyty<curdate() ORDER BY data_wizyty, poczatek DESC;");
+            }
+            ((PreparedStatement) statement).setInt(1, id);
+            ResultSet rs = ((PreparedStatement) statement).executeQuery();
+            while(rs.next()) {
+                String name = rs.getString(3) + " " + rs.getString(4);
+                data.add(new VisitTime(rs.getString(1), rs.getString(2),0,id, con, name, rs.getString(5), null));
+            }
+            table.setItems(data);
+            if(planned) {
+                table.getColumns().addAll(dateColumn, timeColumn, nameColumn, specColumn, deleteColumn);
+            } else {
+                table.getColumns().addAll(dateColumn, timeColumn, nameColumn, specColumn);
+            }
+            flowPane.getChildren().add(table);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
+    @SuppressWarnings("Duplicates")
+    private void buildShowTabForDoctor(boolean planned) {
+
+        FlowPane flowPane = new FlowPane();
+        flowPane.setHgap(10);
+        flowPane.setVgap(10);
+        showBorderPane.setCenter(flowPane);
+
+        TableView table = new TableView();
+        table.setPrefWidth(700);
+        table.setEditable(false);
+
+        ObservableList<VisitTime> data = FXCollections.observableArrayList();
+
+        TableColumn dateColumn = new TableColumn("Data");
+        dateColumn.setCellValueFactory(new PropertyValueFactory<>("date"));
+
+        TableColumn timeColumn = new TableColumn("Godzina");
+        timeColumn.setCellValueFactory(new PropertyValueFactory<>("time"));
+
+        TableColumn nameColumn = new TableColumn("Imie i nazwisko pacjenta");
+        nameColumn.setCellValueFactory(new PropertyValueFactory<>("namePat"));
+        nameColumn.setPrefWidth(200);
+
+
+        TableColumn deleteColumn = new TableColumn("Odwolaj");
+        deleteColumn.setCellValueFactory(new PropertyValueFactory<>("deleteB"));
+
+        try {
+            Statement statement;
+            if(planned) {
+                statement = con.prepareStatement("SELECT data_wizyty, poczatek, imie, nazwisko FROM wizyty A JOIN godziny B ON A.godzina_wizyty=B.g_id JOIN pacjenci C ON A.id_pacjenta=C.p_id " +
+                        "WHERE id_lekarza=? AND data_wizyty>=curdate() ORDER BY data_wizyty, poczatek;");
+            } else {
+                statement = con.prepareStatement("SELECT data_wizyty, poczatek, imie, nazwisko FROM wizyty A JOIN godziny B ON A.godzina_wizyty=B.g_id JOIN pacjenci C ON A.id_pacjenta=C.p_id " +
+                        "WHERE id_lekarza=? AND data_wizyty<curdate() ORDER BY data_wizyty DESC, poczatek DESC;");
+            }
+            ((PreparedStatement) statement).setInt(1, idDoctor);
+            ResultSet rs = ((PreparedStatement) statement).executeQuery();
+            while(rs.next()) {
+                String name = rs.getString(3) + " " + rs.getString(4);
+                data.add(new VisitTime(rs.getString(1), rs.getString(2),idDoctor,0, con, null, null, name));
+            }
+            table.setItems(data);
+            if(planned && userType.equals("admin")) {
+                table.getColumns().addAll(dateColumn, timeColumn, nameColumn,  deleteColumn);
+            } else {
+                table.getColumns().addAll(dateColumn, timeColumn, nameColumn);
+            }
+            flowPane.getChildren().add(table);
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+    }
+
+    @SuppressWarnings("Duplicates")
+    private void findUserShow(boolean planned) {
+        //todo
+        System.out.println("halooo");
+        showBorderPane.setCenter(null);
+
+        FlowPane flowPane = new FlowPane();
+        flowPane.setHgap(10);
+        flowPane.setVgap(10);
+        flowPane.setAlignment(Pos.CENTER);
+        showBorderPane.setCenter(flowPane);
+
+        Text t = new Text("Podaj numer pesel pacjenta");
+        TextField textField = new TextField();
+        textField.setMaxWidth(150);
+        Button b = new Button("Dalej");
+
+        flowPane.getChildren().addAll(t, textField,b);
+        b.setOnAction(event -> {
+
+            if(findUserByPesel(textField.getText()) == null) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Uwaga!");
+                alert.setHeaderText(null);
+                alert.setContentText("Wprowadzony numer pesel jest nieprawidłowy lub nie istnieje w bazie pacjentów!");
+
+                alert.showAndWait();
+            } else {
+                try{
+                    Statement statement = con.createStatement();
+                    ResultSet rs = statement.executeQuery("SELECT imie, nazwisko FROM pacjenci WHERE p_id="+id+";");
+                    if(rs.next()) {
+                        imieNazwiskoPacjenta = rs.getString(1)+" "+rs.getString(2);
+                    }
+                    buildShowTabForPatient(planned);
+                } catch (Exception e) {
+                    System.out.println(e);
+                }
+            }
+        });
+    }
+
+
+    // ********** DODAJ WIZYTE ***********
 
     private void buildAddAppointmentTab() {
         addAppointmentT = new Tab("Dodaj wizytę");
@@ -78,10 +361,9 @@ public class Appointment extends Tab {
         tabPane.getTabs().add(addAppointmentT);
 
         addBorderPane = new BorderPane();
-        FlowPane flowPane = new FlowPane();
-        flowPane.setAlignment(Pos.CENTER);
-        flowPane.setHgap(20);
-        flowPane.setVgap(20);
+        VBox vBoxCenter = new VBox();
+        vBoxCenter.setAlignment(Pos.CENTER);
+        vBoxCenter.setSpacing(10);
 
         VBox vBox = new VBox();
         vBox.setAlignment(Pos.TOP_LEFT);
@@ -89,14 +371,14 @@ public class Appointment extends Tab {
         //todo ????
         vBox.setPadding(new Insets(7,7,7,7));
 
-        addBorderPane.setCenter(flowPane);
+        addBorderPane.setCenter(vBoxCenter);
         addBorderPane.setTop(vBox);
         addAppointmentT.setContent(addBorderPane);
 
-        if(userType.equals("sekretarka") || userType.equals("admin")) {
-            findUser(flowPane, vBox);
+        if(userType.equals("secretary") || userType.equals("admin")) {
+            findUser(vBoxCenter, vBox);
         } else if(userType.equals("user")) {
-            chooseSpecialization(flowPane, vBox);
+            chooseSpecializationAndDate(vBoxCenter, vBox);
         }
 
 
@@ -104,16 +386,17 @@ public class Appointment extends Tab {
     }
 
     //zabezpieczone
-    private void findUser(FlowPane flowPane, VBox vBox) {
+    private void findUser(VBox vBoxCenter, VBox vBox) {
         addBorderPane.setBottom(null);
-        flowPane.getChildren().clear();
+        vBoxCenter.getChildren().clear();
         vBox.getChildren().clear();
 
         Text t = new Text("Podaj numer pesel pacjenta");
         TextField textField = new TextField();
+        textField.setMaxWidth(150);
         Button b = new Button("Dalej");
 
-        flowPane.getChildren().addAll(t, textField,b);
+        vBoxCenter.getChildren().addAll(t, textField,b);
         b.setOnAction(event -> {
 
             if(findUserByPesel(textField.getText()) == null) {
@@ -136,8 +419,8 @@ public class Appointment extends Tab {
                         //alert.showAndWait();
                     }
 
-                    flowPane.getChildren().removeAll(t,textField,b);
-                    chooseSpecialization(flowPane, vBox);
+                    vBoxCenter.getChildren().removeAll(t,textField,b);
+                    chooseSpecializationAndDate(vBoxCenter, vBox);
                 } catch (Exception e) {
                     System.out.println(e);
                 }
@@ -147,7 +430,7 @@ public class Appointment extends Tab {
     }
 
     //zabezpieczone
-    private String findUserByPesel(String pesel) {
+    private String findUserByPesel(String pesel)    {
         String userPesel = null;
         try {
             System.out.println(pesel);
@@ -164,36 +447,76 @@ public class Appointment extends Tab {
         return userPesel;
     }
 
-    //TODO połączyć specjalizacje i date w jedno okno
-    //dostosowane do pacjenta
-    private void chooseSpecialization(FlowPane flowPane, VBox vBox) {
-        Text textTop = new Text(null);
+    //zabezpieczone
+    private void chooseSpecializationAndDate(VBox vBoxCenter, VBox vBox) {
+        vBoxCenter.getChildren().clear();
+        addBorderPane.setBottom(null);
         vBox.getChildren().clear();
+
+
+        Text patient = new Text(null);
+        Text text = new Text("Wybierz specjalizację");
+        Text textChoose = new Text("Wybierz datę");
+        Text text1 = patient; //XD zeby sie nie rzucal o final w lamda expr
+
+
+        HBox chooseSpec = new HBox();
+        chooseSpec.setAlignment(Pos.CENTER);
+        chooseSpec.setSpacing(10);
+
+        HBox chooseDate = new HBox();
+        chooseDate.setAlignment(Pos.CENTER);
+        chooseDate.setSpacing(10);
+
+        MenuButton menuButton = new MenuButton("specjalizacja");
+        ArrayList<MenuItem> menuItems = new ArrayList<>();
+        String s;
+
+        DatePicker datePicker = new DatePicker();
+        datePicker.setDayCellFactory(picker -> new DateCell() {
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                LocalDate today = LocalDate.now();
+
+                setDisable(empty || date.compareTo(today) < 0 );
+            }
+        });
+
+        Button nextButton = new Button("Dalej");
+        nextButton.setOnAction(event -> {
+
+            if(menuButton.getText().equals("specjalizacja") || datePicker.getValue()==null) {
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Uwaga!");
+                alert.setHeaderText(null);
+                alert.setContentText("Nie wybrano daty lub specjalizacji.");
+                alert.showAndWait();
+            } else {
+                specialization = menuButton.getText();
+                Text spec = new Text("Szukany lekarz: "+specialization);
+
+                LocalDate localDate = datePicker.getValue();
+                day = localDate.getDayOfMonth();
+                month = localDate.getMonthValue();
+                year = localDate.getYear();
+                date = localDate.toString();
+                showAppointments(vBoxCenter, vBox, text1, spec);
+            }
+        });
+
+
         if(userType.equals("sekretarka") || userType.equals("admin")) {
-            textTop= new Text("Wybrany pacjent: " +imieNazwiskoPacjenta);
-            vBox.getChildren().add(textTop);
+            patient= new Text("Wybrany pacjent: " +imieNazwiskoPacjenta);
+            vBox.getChildren().add(patient);
             Button backButton = new Button("Powrót");
             backButton.setOnAction(event -> {
-                findUser(flowPane, vBox);
+                findUser(vBoxCenter, vBox);
             });
             addBorderPane.setBottom(backButton);
         }
 
-        flowPane.getChildren().clear();
-        addBorderPane.setBottom(null);
-        Text text = new Text("Wybierz specjalizację");
-        MenuButton menuButton = new MenuButton("specjalizacja");
-        ArrayList<MenuItem> menuItems = new ArrayList<>();
-        String s;
-        Button nextButton = new Button("dalej");
-
-        Text text1 = textTop; //XD zeby sie nie rzucal o final w lamda expr
-        nextButton.setOnAction(event -> {
-
-            specialization = menuButton.getText();
-            chooseDate(flowPane, vBox, text1);
-        });
-
+        chooseSpec.getChildren().addAll(text,menuButton);
+        chooseDate.getChildren().addAll(textChoose,datePicker);
 
         try {
             ResultSet rs = stmt.executeQuery("SELECT DISTINCT specjalizacja FROM pracownicy WHERE specjalizacja IS NOT NULL ORDER BY specjalizacja ;");
@@ -206,61 +529,16 @@ public class Appointment extends Tab {
                 menuItems.add(newMenuItem);
             }
             menuButton.getItems().addAll(menuItems);
-            flowPane.getChildren().addAll(text,menuButton,nextButton);
         } catch (Exception e) {
             System.out.println(e);
         }
 
+        vBoxCenter.getChildren().addAll(chooseSpec, chooseDate,nextButton);
 
     }
 
-    //dost do pacjenta
-    private void chooseDate(FlowPane flowPane, VBox vBox, Text patient) {
-
-        vBox.getChildren().clear();
-        if(userType.equals("sekretarka") || userType.equals("admin")) {
-            vBox.getChildren().add(patient);
-        }
-
-
-        Text spec = new Text("Szukany lekarz: "+specialization);
-        vBox.getChildren().add(spec);
-
-
-        DatePicker datePicker = new DatePicker();
-        Text text = new Text("Wybierz datę");
-        Button button = new Button("Dalej");
-        button.setOnAction(event -> {
-            LocalDate localDate = datePicker.getValue();
-            day = localDate.getDayOfMonth();
-            month = localDate.getMonthValue();
-            year = localDate.getYear();
-            date = localDate.toString();
-            showAppointments(flowPane, vBox, patient, spec);
-        });
-        Button backButton = new Button("Powrót");
-        backButton.setOnAction(event -> {
-            chooseSpecialization(flowPane, vBox);
-        });
-
-        datePicker.setDayCellFactory(picker -> new DateCell() {
-            public void updateItem(LocalDate date, boolean empty) {
-                super.updateItem(date, empty);
-                LocalDate today = LocalDate.now();
-
-                setDisable(empty || date.compareTo(today) < 0 );
-            }
-        });
-
-        flowPane.getChildren().clear();
-        addBorderPane.setBottom(null);
-        flowPane.getChildren().addAll(text,datePicker,button);
-        addBorderPane.setBottom(backButton);
-
-    }
-
-    //dost do pacjenta
-    private void showAppointments(FlowPane flowPane, VBox vBox, Text patient, Text spec) {
+    //dost do pacjenta i zabezpieczone
+    private void showAppointments(VBox vBoxCenter, VBox vBox, Text patient, Text spec) {
         vBox.getChildren().clear();
 
         if(userType.equals("sekretarka") || userType.equals("admin")) {
@@ -273,7 +551,7 @@ public class Appointment extends Tab {
 
         Text chooseText = new Text("Wybierz lekarza: ");
 
-        flowPane.getChildren().clear();
+        vBoxCenter.getChildren().clear();
         addBorderPane.setBottom(null);
 
         ArrayList<Staff> arrayList = new ArrayList<>();
@@ -283,7 +561,7 @@ public class Appointment extends Tab {
 
         Button backButton = new Button("Powrót");
         backButton.setOnAction(event -> {
-            chooseDate(flowPane, vBox,patient);
+            chooseSpecializationAndDate(vBoxCenter, vBox);
         });
 
         vBox.getChildren().addAll(chooseText,menuButton);
@@ -304,7 +582,7 @@ public class Appointment extends Tab {
                     try {
                         for (Staff staff: arrayList) {
                             if(staff.getImieNazwisko().equals(newItemDoctor.getText())) {
-                                createTableWithTerms(flowPane, staff.getId());
+                                createTableWithTerms(vBoxCenter, staff.getId());
                             }
                         }
                     } catch (Exception e) {
@@ -326,9 +604,9 @@ public class Appointment extends Tab {
         //stmt.executeQuery("SELECT FROM Wizyty A JOIN Pracownicy B ON A.id_lekarza=B.staff_id WHERE data_wizyty="+date+);
         addBorderPane.setBottom(backButton);
     }
-
-    public void createTableWithTerms(FlowPane flowPane, int idDoctor) {
-        flowPane.getChildren().clear();
+    @SuppressWarnings("Duplicates")
+    public void createTableWithTerms(VBox vBoxCenter, int idDoctor) {
+        vBoxCenter.getChildren().clear();
 
         TableView table = new TableView();
         table.setPrefWidth(400);
@@ -352,7 +630,7 @@ public class Appointment extends Tab {
             ResultSet rs = ((PreparedStatement) statement).executeQuery();
             while (rs.next()) {
                 String beg = rs.getString(1);
-                data.add(new VisitTime(date, beg, idDoctor,id, con));
+                data.add(new VisitTime(date, beg, idDoctor,id, con, null, null, null));
             }
         } catch (Exception e) {
             System.out.println(e);
@@ -365,7 +643,7 @@ public class Appointment extends Tab {
 
 
 
-        flowPane.getChildren().addAll(table);
+        vBoxCenter.getChildren().addAll(table);
 
 
     }
