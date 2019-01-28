@@ -1,4 +1,4 @@
-package main.start;
+package staff;
 
 import javafx.collections.FXCollections;
 import javafx.geometry.Insets;
@@ -11,6 +11,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import staff.StaffList;
 
 public class StaffPopup {
     private String name;

@@ -7,16 +7,20 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import staff.Staff;
 
 import java.sql.*;
 import java.time.LocalDate;
+<<<<<<< HEAD
 import java.util.*;
+=======
+import java.util.ArrayList;
+>>>>>>> f3e9a4b266af2a456b2c0790799d2e855d5172c7
 
 public class Appointment extends Tab {
     private Connection con;

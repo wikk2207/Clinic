@@ -1,29 +1,30 @@
-package main.start;
 
-import javafx.beans.property.SimpleIntegerProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.ButtonType;
-import javafx.scene.input.MouseEvent;
+package patients;
 
-import java.util.Optional;
+        import javafx.beans.property.SimpleIntegerProperty;
+        import javafx.beans.property.SimpleStringProperty;
+        import javafx.scene.control.Alert;
+        import javafx.scene.control.Button;
+        import javafx.scene.control.ButtonType;
+        import javafx.scene.input.MouseEvent;
+        import patients.PatientList;
 
-public class Staff {
+        import java.util.Optional;
+
+public class Patient {
     private final SimpleIntegerProperty id;
     private final SimpleStringProperty firstName;
     private final SimpleStringProperty lastName;
-    private final SimpleStringProperty type;
-    private final SimpleStringProperty spec;
+    private final SimpleStringProperty pesel;
+    private final SimpleStringProperty date;
     private Button deleteB;
-    private String imieNazwisko;
 
-    public Staff(int id, String fName, String lName, String type, String spec) {
+    public Patient(int id, String fName, String lName, String pesel, String date) {
         this.id = new SimpleIntegerProperty(id);
         this.firstName = new SimpleStringProperty(fName);
         this.lastName = new SimpleStringProperty(lName);
-        this.type = new SimpleStringProperty(type);
-        this.spec = new SimpleStringProperty(spec);
+        this.pesel = new SimpleStringProperty(pesel);
+        this.date = new SimpleStringProperty(date);
         this.deleteB = new Button("Usun");
         this.deleteB.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> deleteB());
     }
@@ -52,19 +53,17 @@ public class Staff {
         lastName.set(fName);
     }
 
-    public String getType() {
-        return type.get();
+    public String getPesel() {
+        return pesel.get();
     }
 
-    public void setType(String typ) {
-        type.set(typ);
+    public void setPesel(String pesel) {
+        this.pesel.set(pesel);
     }
 
-    public String getSpec() {
-        return spec.get();
-    }
+    public String getDate() { return date.get(); }
 
-    public void setSpec(String specS) { spec.set(specS); }
+    public void setDate(String date) { this.date.set(date); }
 
     public Button getDeleteB() { return deleteB; }
 
@@ -72,21 +71,13 @@ public class Staff {
 
     public void deleteB() {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setHeaderText("Usuwasz pracownika");
+        alert.setHeaderText("Usuwasz pacjenta");
         alert.setContentText("Czy jestes tego pewien?");
         Optional<ButtonType> result = alert.showAndWait();
         if (result.get() == ButtonType.OK){
-            StaffList.deleteStaff(getId());
+            PatientList.deletePatient(getId());
             this.deleteB.setText("Usunieto");
             this.deleteB.setDisable(true);
         } else {}
-    }
-
-    public String getImieNazwisko() {
-        return imieNazwisko;
-    }
-
-    public void setImieNazwisko(String imieNazwisko) {
-        this.imieNazwisko = imieNazwisko;
     }
 }
