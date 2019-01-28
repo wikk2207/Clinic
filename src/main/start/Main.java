@@ -14,6 +14,7 @@ import javafx.geometry.Pos;
 import patients.PatientList;
 import results.AddResults;
 import results.Results;
+import results.ShowResults;
 import staff.StaffList;
 import visits.Appointment;
 
@@ -34,7 +35,7 @@ public class Main extends Application {
     private TextField passTF;
     private Button loginB;
     private Appointment app;
-    private Results res;
+    private ShowResults res;
     private AddResults add;
     private Statement stmt = null;
     private Connection conn;
@@ -102,7 +103,7 @@ public class Main extends Application {
         }
 
         app = new Appointment(conn, user, user_id);
-        res = new Results();
+        res = new ShowResults();
         add = new AddResults();
         StaffList stf = new StaffList(conn);
         PatientList plist = new PatientList(conn, user);
@@ -121,7 +122,7 @@ public class Main extends Application {
             System.out.println(e);
         }
         app = new Appointment(conn, user, user_id);
-        res = new Results();
+        res = new ShowResults();
         tabs.getTabs().add(res);
         tabs.getTabs().add(app);
     }
@@ -134,7 +135,7 @@ public class Main extends Application {
             System.out.println(e);
         }
         app = new Appointment(conn, user,user_id);
-        res = new Results();
+        res = new ShowResults();
         tabs.getTabs().add(res);
         tabs.getTabs().add(app);
     }
@@ -147,7 +148,7 @@ public class Main extends Application {
             System.out.println(e);
         }
 
-        res = new Results();
+        res = new ShowResults();
         add = new AddResults();
         app = new Appointment(conn, user, user_id);
         tabs.getTabs().addAll(res,add,app);
