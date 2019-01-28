@@ -13,12 +13,13 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import patients.PatientList;
 import staff.StaffList;
+import visits.Appointment;
 
 import java.sql.*;
 
 public class Main extends Application {
-    public  static final String HOST = "jdbc:mysql://cucumber02.myqnapcloud.com:3306/projekt_sql";
-    //public  static final String HOST = "jdbc:mysql://localhost:3306/projekt_sql";
+    //public  static final String HOST = "jdbc:mysql://cucumber02.myqnapcloud.com:3306/projekt_sql";
+    public  static final String HOST = "jdbc:mysql://localhost:3306/projekt_sql";
     public static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
     public static String login = null;
     public static String pass = null;

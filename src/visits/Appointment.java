@@ -1,4 +1,4 @@
-package main.start;
+package visits;
 
 
 import javafx.collections.FXCollections;
@@ -232,17 +232,17 @@ public class Appointment extends Tab {
         try {
             Statement statement;
             if(planned) {
-                statement = con.prepareStatement("SELECT data_wizyty, poczatek, imie, nazwisko, specjalizacja FROM wizyty A JOIN godziny B ON A.godzina_wizyty=B.g_id JOIN pracownicy C ON A.id_lekarza=C.staff_id " +
+                statement = con.prepareStatement("SELECT data_wizyty, poczatek, imie, nazwisko, specjalizacja, w_id FROM wizyty A JOIN godziny B ON A.godzina_wizyty=B.g_id JOIN pracownicy C ON A.id_lekarza=C.staff_id " +
                         "WHERE id_pacjenta=? AND data_wizyty>=curdate() ORDER BY data_wizyty, poczatek;");
             } else {
-                statement = con.prepareStatement("SELECT data_wizyty, poczatek, imie, nazwisko, specjalizacja FROM wizyty A JOIN godziny B ON A.godzina_wizyty=B.g_id JOIN pracownicy C ON A.id_lekarza=C.staff_id " +
+                statement = con.prepareStatement("SELECT data_wizyty, poczatek, imie, nazwisko, specjalizacja, w_id FROM wizyty A JOIN godziny B ON A.godzina_wizyty=B.g_id JOIN pracownicy C ON A.id_lekarza=C.staff_id " +
                             "WHERE id_pacjenta=? AND data_wizyty<curdate() ORDER BY data_wizyty, poczatek DESC;");
             }
             ((PreparedStatement) statement).setInt(1, id);
             ResultSet rs = ((PreparedStatement) statement).executeQuery();
             while(rs.next()) {
                 String name = rs.getString(3) + " " + rs.getString(4);
-                data.add(new VisitTime(rs.getString(1), rs.getString(2),0,id, con, name, rs.getString(5), null));
+                data.add(new VisitTime(rs.getString(1), rs.getString(2),0,id, con, name, rs.getString(5), null, rs.getInt(6)));
             }
             table.setItems(data);
             if(planned) {
@@ -287,17 +287,17 @@ public class Appointment extends Tab {
         try {
             Statement statement;
             if(planned) {
-                statement = con.prepareStatement("SELECT data_wizyty, poczatek, imie, nazwisko FROM wizyty A JOIN godziny B ON A.godzina_wizyty=B.g_id JOIN pacjenci C ON A.id_pacjenta=C.p_id " +
+                statement = con.prepareStatement("SELECT data_wizyty, poczatek, imie, nazwisko, w_id FROM wizyty A JOIN godziny B ON A.godzina_wizyty=B.g_id JOIN pacjenci C ON A.id_pacjenta=C.p_id " +
                         "WHERE id_lekarza=? AND data_wizyty>=curdate() ORDER BY data_wizyty, poczatek;");
             } else {
-                statement = con.prepareStatement("SELECT data_wizyty, poczatek, imie, nazwisko FROM wizyty A JOIN godziny B ON A.godzina_wizyty=B.g_id JOIN pacjenci C ON A.id_pacjenta=C.p_id " +
+                statement = con.prepareStatement("SELECT data_wizyty, poczatek, imie, nazwisko, w_id FROM wizyty A JOIN godziny B ON A.godzina_wizyty=B.g_id JOIN pacjenci C ON A.id_pacjenta=C.p_id " +
                         "WHERE id_lekarza=? AND data_wizyty<curdate() ORDER BY data_wizyty DESC, poczatek DESC;");
             }
             ((PreparedStatement) statement).setInt(1, idDoctor);
             ResultSet rs = ((PreparedStatement) statement).executeQuery();
             while(rs.next()) {
                 String name = rs.getString(3) + " " + rs.getString(4);
-                data.add(new VisitTime(rs.getString(1), rs.getString(2),idDoctor,0, con, null, null, name));
+                data.add(new VisitTime(rs.getString(1), rs.getString(2),idDoctor,0, con, null, null, name, rs.getInt(5)));
             }
             table.setItems(data);
             if(planned && userType.equals("admin")) {
@@ -313,8 +313,7 @@ public class Appointment extends Tab {
 
     @SuppressWarnings("Duplicates")
     private void findUserShow(boolean planned) {
-        //todo
-        System.out.println("halooo");
+
         showBorderPane.setCenter(null);
 
         FlowPane flowPane = new FlowPane();
@@ -631,7 +630,7 @@ public class Appointment extends Tab {
             ResultSet rs = ((PreparedStatement) statement).executeQuery();
             while (rs.next()) {
                 String beg = rs.getString(1);
-                data.add(new VisitTime(date, beg, idDoctor,id, con, null, null, null));
+                data.add(new VisitTime(date, beg, idDoctor,id, con, null, null, null, 0));
             }
         } catch (Exception e) {
             System.out.println(e);

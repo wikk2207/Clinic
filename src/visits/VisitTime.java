@@ -1,4 +1,4 @@
-package main.start;
+package visits;
 
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.control.Alert;
@@ -23,9 +23,10 @@ public class VisitTime {
     private int idDoctor;
     private int idPatient;
     private Connection con;
+    private int idVisit;
 
 //todo zapisuj id wizyty
-    VisitTime(String date, String time, int idDoctor, int idPatient, Connection con, String nameDoc, String specialization, String namePat) {
+    VisitTime(String date, String time, int idDoctor, int idPatient, Connection con, String nameDoc, String specialization, String namePat, int idVisit) {
         this.date = new SimpleStringProperty(date);
         this.time = new SimpleStringProperty(time);
         this.nameDoc = new SimpleStringProperty(nameDoc);
@@ -33,6 +34,7 @@ public class VisitTime {
         this.idDoctor=idDoctor;
         this.idPatient=idPatient;
         this.con=con;
+        this.idVisit=idVisit;
         this.namePat= new SimpleStringProperty(namePat);
         chooseB = new Button("X");
         chooseB.setOnAction(event -> {
@@ -107,8 +109,26 @@ public class VisitTime {
     }
 
     //TODO uzupełnić usuwanie
+    @SuppressWarnings("Duplicates")
     private void deleleVisit() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Odwołanie wizyty");
+        alert.setHeaderText(null);
+        alert.setContentText("Czy na pewno chcesz odwolac wizyte "+date.get()+" o godzinie " +time.get()+"?");
+        alert.setHeight(300);
+        alert.setWidth(450);
 
+        try {
+            Statement stmt = con.prepareStatement("DELETE FROM wizyty WHERE w_id=?");
+            ((PreparedStatement) stmt).setInt(1, idVisit);
+            Optional<ButtonType> result = alert.showAndWait();
+            if (result.get() == ButtonType.OK){
+                ((PreparedStatement) stmt).executeUpdate();
+                deleteB.setDisable(true);
+            } else {}
+        } catch (Exception e) {
+            System.out.println(e);
+        }
     };
 
     public String getNameDoc() {
