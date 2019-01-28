@@ -16,11 +16,8 @@ import staff.Staff;
 
 import java.sql.*;
 import java.time.LocalDate;
-<<<<<<< HEAD
-import java.util.*;
-=======
+
 import java.util.ArrayList;
->>>>>>> f3e9a4b266af2a456b2c0790799d2e855d5172c7
 
 public class Appointment extends Tab {
     private Connection con;
