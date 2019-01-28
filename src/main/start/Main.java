@@ -12,6 +12,8 @@ import javafx.scene.layout.GridPane;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import patients.PatientList;
+import results.AddResults;
+import results.Results;
 import staff.StaffList;
 import visits.Appointment;
 

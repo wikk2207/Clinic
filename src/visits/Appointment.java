@@ -604,6 +604,7 @@ public class Appointment extends Tab {
         //stmt.executeQuery("SELECT FROM Wizyty A JOIN Pracownicy B ON A.id_lekarza=B.staff_id WHERE data_wizyty="+date+);
         addBorderPane.setBottom(backButton);
     }
+
     @SuppressWarnings("Duplicates")
     public void createTableWithTerms(VBox vBoxCenter, int idDoctor) {
         vBoxCenter.getChildren().clear();
