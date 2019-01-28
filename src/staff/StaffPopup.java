@@ -37,7 +37,7 @@ public class StaffPopup {
         Label typeL= new Label("Typ pracownika");
         typeCB = new ChoiceBox(FXCollections.observableArrayList("Admin", "Lekarz", "Sekretarka"));
         Label specL= new Label("Specjalizacja");
-        specCB = new ChoiceBox(FXCollections.observableArrayList("brak", "endokrynolog", "pediatra", "dermatolog", "lekarz rodzinny", "ginekolog", "okulista", "alergolog"));
+        specCB = new ChoiceBox(FXCollections.observableArrayList("", "endokrynolog", "pediatra", "dermatolog", "lekarz rodzinny", "ginekolog", "okulista", "alergolog"));
         Button buttonL= new Button("Zatwierdz");
         buttonL.setOnAction(e -> getNew());
         grid = new GridPane();
