@@ -7,7 +7,6 @@ package patients;
         import javafx.scene.control.Button;
         import javafx.scene.control.ButtonType;
         import javafx.scene.input.MouseEvent;
-        import patients.PatientList;
         import results.ShowResults;
 
         import java.util.Optional;
