@@ -37,9 +37,11 @@ public class Main extends Application {
     private Appointment app;
     private ShowResults res;
     private AddResults add;
+    private LogoutTab logoutTab;
     private Statement stmt = null;
     private Connection conn;
     private int user_id;
+    private Button logoutB;
 
 
     @Override
@@ -50,7 +52,7 @@ public class Main extends Application {
         loginTF = new TextField();
         passTF = new TextField();
         loginB = new Button("Login");
-        loginB.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> login());
+        loginB.addEventHandler(MouseEvent.MOUSE_CLICKED, event -> tryLogin());
         loginB.setStyle("-fx-background-color: mediumturquoise; -fx-textfill: white;");
         grid = new GridPane();
         grid.setPadding(new Insets(10, 10, 10, 10));
@@ -65,6 +67,11 @@ public class Main extends Application {
         Scene scene = new Scene(grid, 1200, 800);
         stage.setScene(scene);
         stage.show();
+
+        logoutB = new Button("Wyloguj");
+        logoutB.setOnAction(event -> logout());
+
+        logoutTab = new LogoutTab(logoutB);
     }
 
 
@@ -73,10 +80,13 @@ public class Main extends Application {
         launch(args);
     }
 
-    public void login() {
+    public void tryLogin() {
         login = loginTF.getText();
         pass = passTF.getText();
         checkUser();
+    }
+
+    private void login() {
         grid.getChildren().clear();
         tabs = new TabPane();
         tabs.setMinSize(1200,800);
@@ -107,11 +117,7 @@ public class Main extends Application {
         add = new AddResults(conn, user, user_id);
         StaffList stf = new StaffList(conn);
         PatientList plist = new PatientList(conn, user);
-        tabs.getTabs().add(res);
-        tabs.getTabs().add(add);
-        tabs.getTabs().add(app);
-        tabs.getTabs().add(plist);
-        tabs.getTabs().add(stf);
+        tabs.getTabs().addAll(res, add, plist, stf, logoutTab);
     }
 
     public void userLogin() {
@@ -123,8 +129,7 @@ public class Main extends Application {
         }
         app = new Appointment(conn, user, user_id);
         res = new ShowResults(user, user_id, conn);
-        tabs.getTabs().add(res);
-        tabs.getTabs().add(app);
+        tabs.getTabs().addAll(res, app, logoutTab);
     }
 
     public void secretaryLogin() {
@@ -136,8 +141,7 @@ public class Main extends Application {
         }
         app = new Appointment(conn, user,user_id);
         res = new ShowResults(user, user_id, conn);
-        tabs.getTabs().add(res);
-        tabs.getTabs().add(app);
+        tabs.getTabs().addAll(res, app, logoutTab);
     }
 
     public void doctorLogin() {
@@ -151,7 +155,7 @@ public class Main extends Application {
         res = new ShowResults(user, user_id, conn);
         add = new AddResults(conn, user, user_id);
         app = new Appointment(conn, user, user_id);
-        tabs.getTabs().addAll(res,add,app);
+        tabs.getTabs().addAll(res,add,app, logoutTab);
     }
 
     private void checkUser() {
@@ -190,15 +194,42 @@ public class Main extends Application {
                 } else {
                     user="user";
                 }
+                con.close();
+                login();
             } else {
-                System.out.println("Nie znaleziono takiego uzytkownika");
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Nie udało się zalogować!");
+                alert.setHeaderText(null);
+                alert.setContentText("Nieprawidłowy login lub hasło;");
+                alert.showAndWait();
+                loginTF.clear();
+                passTF.clear();
             }
-            con.close();
         } catch(SQLException ex) {
             ex.printStackTrace();
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
+    }
+
+    private void logout() {
+        try {
+            conn.close();
+            grid.getChildren().clear();
+            loginTF.clear();
+            passTF.clear();
+
+            grid.setAlignment(Pos.CENTER);
+            grid.add(loginT, 0, 0);
+            grid.add(passT, 0, 1);
+            grid.add(loginTF, 1, 0);
+            grid.add(passTF, 1, 1);
+            grid.add(loginB, 1, 2);
+
+        } catch (Exception e) {
+            System.out.println(e);
+        }
+
     }
 }
 
