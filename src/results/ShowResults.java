@@ -2,26 +2,23 @@ package results;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.EventHandler;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.input.KeyEvent;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
+import staff.SearchDoctor;
+import patients.SearchPatient;
 import patients.Patient;
+import patients.SelectPatientPane;
+import staff.SelectDoctorPane;
 import staff.Staff;
 
 import java.sql.*;
 
-public class ShowResults extends Tab {
+public class ShowResults extends Tab implements SearchPatient, SearchDoctor {
     private BorderPane borderPane;
     private String userType;
     private int userId;
@@ -40,6 +37,10 @@ public class ShowResults extends Tab {
     private int patientId;
     private int doctorId;
     private boolean editable;
+    private SelectPatientPane selectPatientPane;
+    private SelectDoctorPane selectDoctorPane;
+    Button returnToPatientOrDoctor1;
+    Button returnToPatientOrDoctor2;
 
 
 
@@ -66,9 +67,16 @@ public class ShowResults extends Tab {
             showResults();
         } else if (userType.equals("secretary")) {
             editable = false;
-            selectPatient();
+            selectPatientPane = new SelectPatientPane(con, this);
+            this.setContent(selectPatientPane);
         } else if(userType.equals("admin")) {
             editable = true;
+            returnToPatientOrDoctor1 =  new Button("Powrot");
+            returnToPatientOrDoctor2 = new Button("Powrot");
+            returnToPatientOrDoctor1.setOnAction(event -> patientOrDoctor());
+            returnToPatientOrDoctor2.setOnAction(event -> patientOrDoctor());
+            selectPatientPane = new SelectPatientPane(con, this, returnToPatientOrDoctor1);
+            selectDoctorPane = new SelectDoctorPane(con, this, returnToPatientOrDoctor2);
             patientOrDoctor();
         }
 
@@ -86,10 +94,16 @@ public class ShowResults extends Tab {
             showResults();
         });
 
-        if(userType.equals("secretary") || userType.equals("admin")) {
+        if(userType.equals("secretary")) {
             Button back = new Button("Powrot");
             back.setOnAction(event -> {
-                selectPatient();
+                this.setContent(selectPatientPane);
+            });
+            borderPane.setTop(back);
+        } else if( userType.equals("admin"))  {
+            Button back = new Button("Powrot");
+            back.setOnAction(event -> {
+                patientOrDoctor();
             });
             borderPane.setTop(back);
         }
@@ -188,6 +202,8 @@ public class ShowResults extends Tab {
 
 
     private void patientOrDoctor() {
+        this.setContent(borderPane);
+
         borderPane.setCenter(null);
         borderPane.setTop(null);
         borderPane.setBottom(null);
@@ -209,10 +225,10 @@ public class ShowResults extends Tab {
         Button button = new Button("Dalej");
         button.setOnAction(event -> {
             if(rb1.isSelected()) {
-                selectPatient();
+                this.setContent(selectPatientPane);
             }
             if(rb2.isSelected()) {
-                selectDoctor();
+                this.setContent(selectDoctorPane);
             }
 
         });
@@ -221,226 +237,17 @@ public class ShowResults extends Tab {
 
     }
 
-
-    private void selectPatient() {
-        borderPane.setTop(null);
-        borderPane.setCenter(null);
-        borderPane.setBottom(null);
-
-        VBox vBox = new VBox();
-        borderPane.setTop(vBox);
-
-        if(userType.equals("admin")) {
-
-            Button back = new Button("Powrot");
-            back.setOnAction(event -> patientOrDoctor());
-            vBox.getChildren().add(back);
-        }
-
-        patientTable = new TableView<Patient>();
-        try {
-            searchPatient = con.prepareStatement(
-                    "SELECT p_id, imie, nazwisko, pesel, data_urodzenia FROM pacjenci " +
-                            "WHERE UPPER(imie) LIKE UPPER(?) AND UPPER(nazwisko) LIKE UPPER(?) AND UPPER(pesel) LIKE UPPER(?)");
-        }
-        catch (SQLException e) {
-            System.out.println(e);
-        }
-        Label searchPatientL = new Label("Szukanie Pacjenta");
-        searchPatientL.setFont(new Font("Arial", 20));
-        Label nameSL = new Label("Imie:");
-        Label lnameSL = new Label("Nazwisko:");
-        Label peselSL = new Label("Pesel:");
-        nameSearchTF = new TextField();
-        nameSearchTF.addEventHandler(KeyEvent.KEY_RELEASED, event -> refreshP());
-        lnameSearchTF = new TextField();
-        lnameSearchTF.addEventHandler(KeyEvent.KEY_RELEASED, event -> refreshP());
-        peselSearchTF = new TextField();
-        peselSearchTF.addEventHandler(KeyEvent.KEY_RELEASED, event -> refreshP());
-        gridPane = new GridPane();
-        gridPane.setPadding(new Insets(10));
-        gridPane.setVgap(4);
-        gridPane.setHgap(10);
-        gridPane.add(searchPatientL, 0, 3, 3,1);
-        gridPane.add(nameSL, 0, 4);
-        gridPane.add(lnameSL, 1, 4);
-        gridPane.add(peselSL, 2, 4);
-        gridPane.add(nameSearchTF, 0, 5);
-        gridPane.add(lnameSearchTF, 1, 5);
-        gridPane.add(peselSearchTF, 2, 5);
-        vBox.getChildren().add(gridPane);
-        createPatientTable();
-        refreshP();
-        borderPane.setCenter(patientTable);
-
-
-    }
-
-    private void createPatientTable() {
-        patientTable.setEditable(false);
-        patientTable.setMinSize(1200,735);
-        TableColumn idCol = new TableColumn("ID");
-        idCol.setPrefWidth(70);
-        idCol.setCellValueFactory(new PropertyValueFactory<Patient, Integer>("id"));
-        TableColumn nameCol = new TableColumn("Imie");
-        nameCol.setPrefWidth(120);
-        nameCol.setCellValueFactory(new PropertyValueFactory<Patient, String>("firstName"));
-        TableColumn lnameCol = new TableColumn("Nazwisko");
-        lnameCol.setPrefWidth(120);
-        lnameCol.setCellValueFactory(new PropertyValueFactory<Patient, String>("lastName"));
-        TableColumn peselCol = new TableColumn("Pesel");
-        peselCol.setPrefWidth(120);
-        peselCol.setCellValueFactory(new PropertyValueFactory<Patient, String>("pesel"));
-        TableColumn dateCol = new TableColumn("Data Urodzenia");
-        dateCol.setPrefWidth(120);
-        dateCol.setCellValueFactory(new PropertyValueFactory<Patient, String>("date"));
-        TableColumn selectCol = new TableColumn("Wybierz");
-        selectCol.setPrefWidth(90);
-        selectCol.setCellValueFactory(new PropertyValueFactory<Staff, String>("selectB"));
-        patientTable.setItems(patientData);
-        patientTable.getColumns().addAll(idCol, nameCol, lnameCol, peselCol, dateCol, selectCol);
-
-    }
-
-    public void refreshP() {
-        String nameSearch = nameSearchTF.getText();
-        String lnameSearch = lnameSearchTF.getText();
-        String peselSearch = peselSearchTF.getText();
-        try {
-            patientData.clear();
-            ((PreparedStatement) searchPatient).setString(1, "%" + nameSearch + "%");
-            ((PreparedStatement) searchPatient).setString(2, "%" + lnameSearch + "%");
-            ((PreparedStatement) searchPatient).setString(3, "%" + peselSearch + "%");
-            ((PreparedStatement) searchPatient).executeQuery();
-            ResultSet res = ((PreparedStatement) searchPatient).executeQuery();
-            while(res.next()) {
-                int idS = res.getInt("p_id");
-                String nameS = res.getString("imie");
-                String lnameS = res.getString("nazwisko");
-                String peselS = res.getString("pesel");
-                String dateS = res.getString("data_urodzenia");
-                Patient patient = new Patient(idS, nameS, lnameS, peselS, dateS);
-                patient.setShowResults(this);
-                patientData.add(patient);
-            }
-        } catch(SQLException ex) {
-            ex.printStackTrace();
-        }
-    }
-
+    @Override
     public void setPatientId (int id) {
         this.patientId=id;
+        this.setContent(borderPane);
         showResults();
     }
 
-
-    private void selectDoctor(){
-        borderPane.setTop(null);
-        borderPane.setCenter(null);
-        borderPane.setBottom(null);
-
-        VBox vBox = new VBox();
-        borderPane.setTop(vBox);
-
-        if(userType.equals("admin")) {
-            Button back = new Button("Powrot");
-            back.setOnAction(event -> patientOrDoctor());
-            vBox.getChildren().add(back);
-        }
-
-        doctorTable = new TableView<Staff>();
-        try {
-            searchDoctor = con.prepareStatement(
-                    "SELECT staff_id, imie, nazwisko, specjalizacja FROM pracownicy " +
-                            "WHERE UPPER(imie) LIKE UPPER(?) AND UPPER(nazwisko) LIKE UPPER(?) " +
-                            "AND typ=\"lekarz\" " +
-                            "AND (UPPER(specjalizacja) LIKE UPPER(?))");
-        }
-        catch (SQLException e) {
-            System.out.println(e);
-        }
-        Label searchDoctorL = new Label("Szukanie Lekarza");
-        searchDoctorL.setFont(new Font("Arial", 20));
-        Label nameSL = new Label("Imie:");
-        Label lnameSL = new Label("Nazwisko:");
-        Label typeSL = new Label("Specjalizacja:");
-        nameSearchTF = new TextField();
-        nameSearchTF.addEventHandler(KeyEvent.KEY_RELEASED, event -> refreshD());
-        lnameSearchTF = new TextField();
-        lnameSearchTF.addEventHandler(KeyEvent.KEY_RELEASED, event -> refreshD());
-        typeSearchTF = new TextField();
-        typeSearchTF.addEventHandler(KeyEvent.KEY_RELEASED, event -> refreshD());
-        gridPane = new GridPane();
-        gridPane.setPadding(new Insets(10));
-        gridPane.setVgap(4);
-        gridPane.setHgap(10);
-        gridPane.add(searchDoctorL, 0, 3, 3,1);
-        gridPane.add(nameSL, 0, 4);
-        gridPane.add(lnameSL, 1, 4);
-        gridPane.add(typeSL, 2, 4);
-        gridPane.add(nameSearchTF, 0, 5);
-        gridPane.add(lnameSearchTF, 1, 5);
-        gridPane.add(typeSearchTF, 2, 5);
-        vBox.getChildren().add(gridPane);
-        createDoctorTable();
-        refreshD();
-        borderPane.setCenter(doctorTable);
-    }
-
-    private void refreshD () {
-        String nameSearch = nameSearchTF.getText();
-        String lnameSearch = lnameSearchTF.getText();
-        String typeSearch = typeSearchTF.getText();
-        try {
-            doctorData.clear();
-            ((PreparedStatement) searchDoctor).setString(1, "%" + nameSearch + "%");
-            ((PreparedStatement) searchDoctor).setString(2, "%" + lnameSearch + "%");
-            ((PreparedStatement) searchDoctor).setString(3, "%" + typeSearch + "%");
-            ((PreparedStatement) searchDoctor).executeQuery();
-            ResultSet res = ((PreparedStatement) searchDoctor).executeQuery();
-            while(res.next()) {
-                int idS = res.getInt(1);
-                String nameS = res.getString(2);
-                String lnameS = res.getString(3);
-                String specS = res.getString(4);
-                Staff doc = new Staff(idS, nameS, lnameS, "lekarz", specS);
-                doc.setShowResults(this);
-                doctorData.add(doc);
-            }
-        } catch(SQLException ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    private  void createDoctorTable() {
-        doctorTable.setEditable(false);
-        doctorTable.setMinSize(1200,735);
-        TableColumn idCol = new TableColumn("ID");
-        idCol.setPrefWidth(70);
-        idCol.setCellValueFactory(new PropertyValueFactory<Patient, Integer>("id"));
-
-        TableColumn nameCol = new TableColumn("Imie");
-        nameCol.setPrefWidth(120);
-        nameCol.setCellValueFactory(new PropertyValueFactory<Patient, String>("firstName"));
-
-        TableColumn lnameCol = new TableColumn("Nazwisko");
-        lnameCol.setPrefWidth(120);
-        lnameCol.setCellValueFactory(new PropertyValueFactory<Patient, String>("lastName"));
-
-        TableColumn specCol = new TableColumn("Specjalizacja");
-        specCol.setPrefWidth(120);
-        specCol.setCellValueFactory(new PropertyValueFactory<Patient, String>("spec"));
-
-        TableColumn selectCol = new TableColumn("Wybierz");
-        selectCol.setPrefWidth(90);
-        selectCol.setCellValueFactory(new PropertyValueFactory<Staff, String>("selectB"));
-
-        doctorTable.setItems(doctorData);
-        doctorTable.getColumns().addAll(idCol, nameCol, lnameCol, specCol, selectCol);
-    }
-
+    @Override
     public void setDoctorId (int id) {
         this.doctorId=id;
+        this.setContent(borderPane);
         showResults();
     }
 

@@ -7,8 +7,6 @@ package patients;
         import javafx.scene.control.Button;
         import javafx.scene.control.ButtonType;
         import javafx.scene.input.MouseEvent;
-        import patients.PatientList;
-        import results.ShowResults;
 
         import java.util.Optional;
 
@@ -20,7 +18,7 @@ public class Patient {
     private final SimpleStringProperty date;
     private Button deleteB;
     private Button selectB;
-    private ShowResults showResults;
+    private SearchPatient parentTab;
 
     public Patient(int id, String fName, String lName, String pesel, String date) {
         this.id = new SimpleIntegerProperty(id);
@@ -91,11 +89,11 @@ public class Patient {
         return selectB;
     }
 
-    public void setShowResults(ShowResults showResults) {
-        this.showResults = showResults;
+    public void setParentTab(SearchPatient parentTab) {
+        this.parentTab = parentTab;
     }
 
     private void select() {
-        showResults.setPatientId(id.get());
+        parentTab.setPatientId(id.get());
     }
 }

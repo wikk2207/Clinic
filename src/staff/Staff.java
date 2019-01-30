@@ -7,7 +7,6 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
 import javafx.scene.input.MouseEvent;
 import results.ShowResults;
-import staff.StaffList;
 
 import java.util.Optional;
 
@@ -21,6 +20,8 @@ public class Staff {
     private String imieNazwisko;
     private Button selectB;
     private ShowResults showResults;
+    private SearchDoctor parentTab;
+
 
     public Staff(int id, String fName, String lName, String type, String spec) {
         this.id = new SimpleIntegerProperty(id);
@@ -105,6 +106,9 @@ public class Staff {
     }
 
     private void select() {
-        showResults.setDoctorId(id.get());
+        parentTab.setDoctorId(id.get());
+    }
+    public void setParentTab(SearchDoctor parentTab) {
+        this.parentTab = parentTab;
     }
 }
