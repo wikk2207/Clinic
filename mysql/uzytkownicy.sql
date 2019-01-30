@@ -24,7 +24,12 @@ BEGIN
 			LEAVE adding_loop1;
 		END IF;
         SET u_login = CONCAT(u_imie,u_id);
-        SET u_haslo = CONCAT(CHAR(ROUND(65 + (RAND()*25))), CHAR(ROUND(65 + (RAND()*25))), CHAR(ROUND(65 + (RAND()*25))), CHAR(ROUND(65 + (RAND()*25))), CHAR(ROUND(65 + (RAND()*25))), FLOOR(RAND()*10), FLOOR(RAND()*10));
+        SET u_haslo = CONCAT(CHAR(ROUND(65 + (RAND()*25))),
+							CHAR(ROUND(65 + (RAND()*25))),
+                            CHAR(ROUND(65 + (RAND()*25))),
+                            CHAR(ROUND(65 + (RAND()*25))),
+                            CHAR(ROUND(65 + (RAND()*25))),
+                            FLOOR(RAND()*10), FLOOR(RAND()*10));
         
         INSERT INTO Uzytkownicy VALUES (u_id, u_login, u_haslo);
 	END LOOP;

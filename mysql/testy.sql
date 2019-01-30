@@ -1,24 +1,23 @@
--- SHOW TABLES;
-
-SELECT * FROM Pacjenci;
-
--- SELECT * FROM Wyniki_badan WHERE id_pacjenta =500;
+-- SELECT * FROM pracownicy;
+-- SELECT * FROM uzytkownicy;
+-- select * from pacjenci;
 
 
-
-SELECT * FROM Badania;
-
-SELECT * FROM Wyniki_badan;
-
--- #SET @id = 365;
--- #EXECUTE wyniki_pacjenta USING @id;
--- INSERT INTO Wyniki_zawartosc (id_wynikow, id_badania, wartosc) VALUES (2,144,45);
--- SELECT * FROM Wyniki_zawartosc;
--- SELECT * FROM Wyniki_zawartosc WHERE poprzednia_wartosc IS NOT NULL;
-
-#INSERT INTO Wyniki_zawartosc (id_wynikow, id_badania, wartosc) VALUES (2,2,23);
-
-SELECT * FROM Wyniki_zawartosc;
-#ELECT id_badania, COUNT(id_badania) FROM Wyniki_zawartosc WHERE id_wynikow = 790 OR id_wynikow = 1694 OR id_wynikow = 3413 OR id_wynikow = 3154 GROUP BY id_badania;
-#SELECT DISTINCT id_badania FROM Wyniki_zawartosc WHERE id_wynikow = 790 OR id_wynikow = 1694 OR id_wynikow = 3413 OR id_wynikow = 3154;
-
+-- DROP TRIGGER IF EXISTS dodaj_poprzednia_wartosc;
+-- DELIMITER //
+-- CREATE TRIGGER dodaj_poprzednia_wartosc BEFORE INSERT ON wyniki_zawartosc FOR EACH ROW
+-- SET @idbadania = NEW.id_badania;
+-- SET @idwynikowNEW = NEW.id_wynikow;
+-- SET @idpacjenta = (SELECT DISTINCT wb.id_pacjenta 
+-- 					FROM wyniki_badan wb INNER JOIN wyniki_zawartosc wz ON wb.wb_id = wz.id_wynikow 
+--                     WHERE wb.wb_id = @idwynikowNEW);
+-- SET @datawystawiena = (SELECT MAX(wb.data_wystawienia) 
+-- 					FROM wyniki_badan wb INNER JOIN wyniki_zawartosc wz ON wb.wb_id = wz.id_wynikow 
+-- 					WHERE wb.id_pacjenta = @idpacjenta AND wz.id_badania = @idbadania);
+-- SET @poprzedniawartosc = (SELECT wz.wartosc 
+-- 						FROM wyniki_zawartosc wz INNER JOIN wyniki_badan wb ON wb.wb_id = wz.id_wynikow 
+-- 						WHERE wb.data_wystawienia = @datawystawienia AND wz.id_badania = @idbadania);
+-- BEGIN
+-- 	SET NEW.poprzednia_wartosc = @poprzedniawartosc;
+-- END //
+-- DELIMITER ;
