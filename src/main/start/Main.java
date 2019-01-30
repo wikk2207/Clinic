@@ -117,7 +117,7 @@ public class Main extends Application {
         add = new AddResults(conn, user, user_id);
         StaffList stf = new StaffList(conn);
         PatientList plist = new PatientList(conn, user);
-        tabs.getTabs().addAll(res, add, plist, stf, b, logoutTab);
+        tabs.getTabs().addAll(app,res, add, plist, stf, b, logoutTab);
     }
 
     public void userLogin() {

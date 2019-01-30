@@ -48,7 +48,7 @@ public class Results {
         this.doctorId = doctorId;
         selectB = new Button("Wybierz");
         selectB.setOnAction(event -> {select();});
-        deleteB = new Button("Usun");
+        deleteB = new Button("X");
         deleteB.setOnAction(event -> {delete();});
     }
 
@@ -215,6 +215,10 @@ public class Results {
 
     public Button getSelectB() {
         return selectB;
+    }
+
+    public Button getDeleteB() {
+        return deleteB;
     }
 
 }

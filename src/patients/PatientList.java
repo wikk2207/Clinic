@@ -287,6 +287,11 @@ public class PatientList extends Tab {
                 ((PreparedStatement) insertPatient).executeUpdate();
             } catch (SQLException ex) {
                 ex.printStackTrace();
+                Alert alert = new Alert(Alert.AlertType.WARNING);
+                alert.setTitle("Uwaga!");
+                alert.setHeaderText(null);
+                alert.setContentText("Niepoprawny pesel");
+                alert.showAndWait();
             }
         }
     }

@@ -113,7 +113,7 @@ public class ShowAppointment extends Tab implements SearchDoctor, SearchPatient 
                 setContent(selectPatientPane);
             });
             HBox hBox = new HBox();
-            hBox.getChildren().addAll(returnButton, returnButton);
+            hBox.getChildren().addAll(returnButton, refreshButton);
             borderPane.setTop(hBox);
         } else {
             borderPane.setTop(refreshButton);
@@ -179,7 +179,7 @@ public class ShowAppointment extends Tab implements SearchDoctor, SearchPatient 
             Button returnButton = new Button("Powrot");
             returnButton.setOnAction(event -> setContent(selectDoctorPane));
             HBox hBox = new HBox();
-            hBox.getChildren().addAll(returnButton, returnButton);
+            hBox.getChildren().addAll(returnButton, refreshButton);
             borderPane.setTop(hBox);
         } else {
             borderPane.setTop(refreshButton);

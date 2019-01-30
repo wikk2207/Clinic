@@ -33,12 +33,13 @@ DELIMITER ;
 DROP TRIGGER IF EXISTS dodaj_poprzednia_wartosc;
 DELIMITER //
 CREATE TRIGGER dodaj_poprzednia_wartosc BEFORE INSERT ON wyniki_zawartosc FOR EACH ROW
+BEGIN
 SET @idbadania = NEW.id_badania;
 SET @idwynikowNEW = NEW.id_wynikow;
 SET @idpacjenta = (SELECT DISTINCT wb.id_pacjenta FROM wyniki_badan wb INNER JOIN wyniki_zawartosc wz ON wb.wb_id = wz.id_wynikow WHERE wb.wb_id = @idwynikowNEW);
 SET @datawystawiena = (SELECT MAX(wb.data_wystawienia) FROM wyniki_badan wb INNER JOIN wyniki_zawartosc wz ON wb.wb_id = wz.id_wynikow WHERE wb.id_pacjenta = @idpacjenta AND wz.id_badania = @idbadania);
 SET @poprzedniawartosc = (SELECT wz.wartosc FROM wyniki_zawartosc wz INNER JOIN wyniki_badan wb ON wb.wb_id = wz.id_wynikow WHERE wb.data_wystawienia = @datawystawienia AND wz.id_badania = @idbadania);
-BEGIN
+
 	SET NEW.poprzednia_wartosc = @poprzedniawartosc;
 END //
 DELIMITER ;

@@ -60,11 +60,11 @@ public class ShowResults extends Tab implements SearchPatient, SearchDoctor {
         if(userType.equals("user")){
             patientId=userId;
             editable = false;
-            showResults();
+            showResults(false);
         } else if (userType.equals("doctor")){
             editable = true;
             doctorId=userId;
-            showResults();
+            showResults(true);
         } else if (userType.equals("secretary")) {
             editable = false;
             selectPatientPane = new SelectPatientPane(con, this);
@@ -85,13 +85,13 @@ public class ShowResults extends Tab implements SearchPatient, SearchDoctor {
     }
 
 
-    private void showResults() {
+    private void showResults(boolean ifdoctor) {
         borderPane.setTop(null);
         borderPane.setCenter(null);
 
         Button backButton = new Button("Powrot");
         backButton.setOnAction(event -> {
-            showResults();
+            showResults(ifdoctor);
         });
 
         if(userType.equals("secretary")) {
@@ -134,16 +134,21 @@ public class ShowResults extends Tab implements SearchPatient, SearchDoctor {
         TableColumn selectColumn = new TableColumn("Szczegoly");
         selectColumn.setCellValueFactory(new PropertyValueFactory<>("selectB"));
 
+        TableColumn deleteColumn = new TableColumn("Usun");
+        deleteColumn.setCellValueFactory(new PropertyValueFactory<>("deleteB"));
         try {
             Statement statement;
-            if(userType.equals("user") || userType.equals("secretary")) {
+            if(userType.equals("user") || userType.equals("secretary") || userType.equals("admin") && !ifdoctor) {
                 statement = con.prepareStatement("SELECT wb_id, data_wystawienia, id_lekarza, imie, nazwisko FROM wyniki_badan A JOIN pracownicy B ON A.id_lekarza = B.staff_id WHERE id_pacjenta=?");
                 ((PreparedStatement) statement).setInt(1, patientId);
-            } else if(userType.equals("doctor")) {
+            } else if(userType.equals("doctor")  || userType.equals("admin") && ifdoctor) {
                 statement = con.prepareStatement("SELECT wb_id, data_wystawienia, id_pacjenta, imie, nazwisko FROM wyniki_badan A JOIN pacjenci B ON A.id_pacjenta = B.p_id WHERE id_lekarza=?");
                 ((PreparedStatement) statement).setInt(1, doctorId);
             } else {
-                statement = con.prepareStatement("SELECT wb_id, data_wystawienia, id_lekarza, id_pacjenta, B.imie, B.nazwisko, C.imie, C.nazwisko FROM wyniki_badan A JOIN pacjenci B ON A.id_pacjenta = B.p_id JOIN pracownicy C ON A.id_lekarza = C.staff_id");
+                statement = con.prepareStatement("SELECT wb_id, data_wystawienia, id_lekarza, id_pacjenta, B.imie, B.nazwisko, C.imie, C.nazwisko " +
+                        "FROM wyniki_badan A JOIN pacjenci B ON A.id_pacjenta = B.p_id JOIN pracownicy C ON A.id_lekarza = C.staff_id WHERE A.id_pacjenta=? AND A.id_lekarza=?");
+                ((PreparedStatement) statement).setInt(1, patientId);
+                ((PreparedStatement) statement).setInt(2, doctorId);
             }
 
             ResultSet rs = ((PreparedStatement) statement).executeQuery();
@@ -158,11 +163,11 @@ public class ShowResults extends Tab implements SearchPatient, SearchDoctor {
                 String nameD = null;
                 String firstnameD = null;
 
-                if(userType.equals("user") || userType.equals("secretary")) {
+                if(userType.equals("user") || userType.equals("secretary") || !ifdoctor) {
                     doctorId = rs.getInt(3);
                     firstnameD = rs.getString(4);
                     nameD=rs.getString(5);
-                } else if(userType.equals("doctor")) {
+                } else if(userType.equals("doctor") || ifdoctor) {
                     userId = rs.getInt(3);
                     firstnameP = rs.getString(4);
                     nameP = rs.getString(5);
@@ -189,8 +194,10 @@ public class ShowResults extends Tab implements SearchPatient, SearchDoctor {
                 table.getColumns().addAll(dateColumn,firstNameColumnD,nameColumnD,selectColumn);
             } else if(userType.equals("doctor")) {
                 table.getColumns().addAll(dateColumn,firstNameColumnP, nameColumnP,selectColumn);
-            } else {
-                table.getColumns().addAll(dateColumn,firstNameColumnD,nameColumnD, firstNameColumnP, nameColumnP, selectColumn);
+            } else if (userType.equals("admin") && ifdoctor){
+                table.getColumns().addAll(dateColumn, firstNameColumnP, nameColumnP, selectColumn, deleteColumn);
+            } else if(userType.equals("admin") && !ifdoctor) {
+                table.getColumns().addAll(dateColumn, firstNameColumnD, nameColumnD, selectColumn, deleteColumn);
             }
             vbox.getChildren().add(table);
 
@@ -241,14 +248,14 @@ public class ShowResults extends Tab implements SearchPatient, SearchDoctor {
     public void setPatientId (int id) {
         this.patientId=id;
         this.setContent(borderPane);
-        showResults();
+        showResults(false);
     }
 
     @Override
     public void setDoctorId (int id) {
         this.doctorId=id;
         this.setContent(borderPane);
-        showResults();
+        showResults(true);
     }
 
 
