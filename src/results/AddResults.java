@@ -28,7 +28,7 @@ public class AddResults extends Tab {
     private TableView<ResultView> table = new TableView<ResultView>();
     private static ObservableList<ResultView> resultViews = FXCollections.observableArrayList();
     private int user_id;
-    private String user;
+    private static String user;
     private int patientID;
     private int testID;
     private GridPane grid;
@@ -44,6 +44,7 @@ public class AddResults extends Tab {
     private Statement insertResult;
     private Statement selectID;
     private Statement searchDoctorID;
+    private Statement searchDoctorByID;
     private ContextMenu entriesPopup;
     private static ChoiceBox specCB;
     private boolean patientFound = false;
@@ -57,6 +58,12 @@ public class AddResults extends Tab {
     public AddResults(Connection conn, String user, int user_id) {
         this.user_id = user_id;
         this.user = user;
+        try {
+            searchDoctorByID = conn.prepareStatement(
+                    "SELECT imie, nazwisko FROM pracownicy WHERE staff_id = ?");
+        } catch (SQLException e) {
+            System.out.println(e);
+        }
         try {
             searchPatient = conn.prepareStatement(
                     "SELECT p_id, imie, nazwisko FROM pacjenci WHERE UPPER(pesel) LIKE UPPER(?)");
@@ -279,7 +286,7 @@ public class AddResults extends Tab {
         resultCol.setPrefWidth(120);
         resultCol.setCellValueFactory(new PropertyValueFactory<ResultView, String>("result"));
         TableColumn commentCol = new TableColumn("Uwagi");
-        commentCol.setPrefWidth(120);
+        commentCol.setPrefWidth(357);
         commentCol.setCellValueFactory(new PropertyValueFactory<ResultView, String>("comment"));
         TableColumn deleteCol = new TableColumn("Akcja");
         deleteCol.setPrefWidth(120);
@@ -292,16 +299,33 @@ public class AddResults extends Tab {
         this.resultS = resultS;
         this. commentS = commentS;
         this.testID = testID;
-        specCB.setDisable(true);
-        doctorCB.setDisable(true);
+        String pName;
+        String pLName;
         patientPesel.setDisable(true);
         borderPane.setCenter(null);
-        String doctor = (String)doctorCB.getSelectionModel().getSelectedItem();
-        String[] split = doctor.split("\\s+");
-        String pName = patientName.getText();
-        String pLName = patientLName.getText();
-        dName = split[0];
-        dLName = split[1];
+        if(user == "admin") {
+            specCB.setDisable(true);
+            doctorCB.setDisable(true);
+            String doctor = (String)doctorCB.getSelectionModel().getSelectedItem();
+            String[] split = doctor.split("\\s+");
+            dName = split[0];
+            dLName = split[1];
+        }
+        else {
+            try {
+                ((PreparedStatement) searchDoctorByID).setInt(1, user_id);
+                ResultSet res1 = ((PreparedStatement) searchDoctorByID).executeQuery();
+                if (res1.next()) {
+                    dName = res1.getString("imie");
+                    dLName = res1.getString("nazwisko");
+                }
+            }
+            catch(SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+        pName = patientName.getText();
+        pLName = patientLName.getText();
         ResultView rv = new ResultView(pName, pLName , dName, dLName, testS, resultS, commentS);
         resultViews.add(rv);
         resultList.add(rv);
@@ -317,8 +341,10 @@ public class AddResults extends Tab {
         resultViews.remove(rv);
         if(resultList.isEmpty()) {
             patientPesel.setDisable(false);
-            specCB.setDisable(false);
-            doctorCB.setDisable(false);
+            if(user == "admin") {
+                specCB.setDisable(false);
+                doctorCB.setDisable(false);
+            }
         }
     }
 
@@ -367,9 +393,12 @@ public class AddResults extends Tab {
         catch(SQLException ex) {
             ex.printStackTrace();
         }
+        resultList.clear();
         borderPane.setCenter(null);
         patientPesel.setDisable(false);
-        specCB.setDisable(false);
-        doctorCB.setDisable(false);
+        if(user == "admin") {
+            specCB.setDisable(false);
+            doctorCB.setDisable(false);
+        }
     }
 }

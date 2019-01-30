@@ -55,7 +55,7 @@ public class ResultsPopup {
         nameTF.addEventHandler(KeyEvent.KEY_RELEASED, event -> searchName(nameTF.getText()));
         Label resultL= new Label("Wynik");
         resultTF = new TextField();
-        jedL = new Label("  ");
+        jedL = new Label("[]");
         Label commentsL= new Label("Uwagi");
         commentTF = new TextField();
         Button buttonL= new Button("Zatwierdz");

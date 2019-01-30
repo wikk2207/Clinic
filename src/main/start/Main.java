@@ -21,8 +21,8 @@ import visits.Appointment;
 import java.sql.*;
 
 public class Main extends Application {
-    public  static final String HOST = "jdbc:mysql://cucumber02.myqnapcloud.com:3306/projekt_sql";
-    //public  static final String HOST = "jdbc:mysql://localhost:3306/projekt_sql";
+    //public  static final String HOST = "jdbc:mysql://cucumber02.myqnapcloud.com:3306/projekt_sql";
+    public  static final String HOST = "jdbc:mysql://localhost:3306/projekt_sql";
     public static final String JDBC_DRIVER = "com.mysql.cj.jdbc.Driver";
     public static String login = null;
     public static String pass = null;
@@ -111,13 +111,13 @@ public class Main extends Application {
         } catch (Exception e) {
             System.out.println(e);
         }
-
+        Backup b = new Backup();
         app = new Appointment(conn, user, user_id);
         res = new ShowResults(user, user_id, conn);
         add = new AddResults(conn, user, user_id);
         StaffList stf = new StaffList(conn);
         PatientList plist = new PatientList(conn, user);
-        tabs.getTabs().addAll(res, add, plist, stf, logoutTab);
+        tabs.getTabs().addAll(res, add, plist, stf, b, logoutTab);
     }
 
     public void userLogin() {
@@ -218,7 +218,7 @@ public class Main extends Application {
             grid.getChildren().clear();
             loginTF.clear();
             passTF.clear();
-
+            tabs.getTabs().clear();
             grid.setAlignment(Pos.CENTER);
             grid.add(loginT, 0, 0);
             grid.add(passT, 0, 1);
