@@ -5,6 +5,7 @@ CREATE USER 'lekarz'@'localhost' IDENTIFIED BY'l2e6k0a4r8z';
 GRANT SELECT, INSERT, UPDATE ON projekt_sql.Pacjenci TO 'lekarz'@'localhost';
 GRANT SELECT, INSERT, UPDATE ON projekt_sql.Wyniki_badan TO 'lekarz'@'localhost';
 GRANT SELECT, INSERT, UPDATE ON projekt_sql.Wyniki_zawartosc TO 'lekarz'@'localhost';
+GRANT SELECT ON projekt_sql.Pracownicy TO 'lekarz'@'localhost';
 GRANT SELECT ON projekt_sql.Wizyty TO 'lekarz'@'localhost';
 GRANT SELECT ON projekt_sql.Badania TO 'lekarz'@'localhost';
 GRANT SELECT ON projekt_sql.Godziny TO 'lekarz'@'localhost';
