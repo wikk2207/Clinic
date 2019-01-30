@@ -367,6 +367,7 @@ public class AddResults extends Tab {
         catch(SQLException ex) {
             ex.printStackTrace();
         }
+        resultList.clear();
         borderPane.setCenter(null);
         patientPesel.setDisable(false);
         specCB.setDisable(false);
