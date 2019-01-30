@@ -28,7 +28,7 @@ public class AddResults extends Tab {
     private TableView<ResultView> table = new TableView<ResultView>();
     private static ObservableList<ResultView> resultViews = FXCollections.observableArrayList();
     private int user_id;
-    private String user;
+    private static String user;
     private int patientID;
     private int testID;
     private GridPane grid;
@@ -292,8 +292,10 @@ public class AddResults extends Tab {
         this.resultS = resultS;
         this. commentS = commentS;
         this.testID = testID;
-        specCB.setDisable(true);
-        doctorCB.setDisable(true);
+        if(user == "admin") {
+            specCB.setDisable(true);
+            doctorCB.setDisable(true);
+        }
         patientPesel.setDisable(true);
         borderPane.setCenter(null);
         String doctor = (String)doctorCB.getSelectionModel().getSelectedItem();
@@ -317,8 +319,10 @@ public class AddResults extends Tab {
         resultViews.remove(rv);
         if(resultList.isEmpty()) {
             patientPesel.setDisable(false);
-            specCB.setDisable(false);
-            doctorCB.setDisable(false);
+            if(user == "admin") {
+                specCB.setDisable(false);
+                doctorCB.setDisable(false);
+            }
         }
     }
 
@@ -370,7 +374,9 @@ public class AddResults extends Tab {
         resultList.clear();
         borderPane.setCenter(null);
         patientPesel.setDisable(false);
-        specCB.setDisable(false);
-        doctorCB.setDisable(false);
+        if(user == "admin") {
+            specCB.setDisable(false);
+            doctorCB.setDisable(false);
+        }
     }
 }
