@@ -1,14 +1,16 @@
 
 package patients;
 
-        import javafx.beans.property.SimpleIntegerProperty;
-        import javafx.beans.property.SimpleStringProperty;
-        import javafx.scene.control.Alert;
-        import javafx.scene.control.Button;
-        import javafx.scene.control.ButtonType;
-        import javafx.scene.input.MouseEvent;
+    import javafx.beans.property.SimpleIntegerProperty;
+    import javafx.beans.property.SimpleStringProperty;
+    import javafx.scene.control.Alert;
+    import javafx.scene.control.Button;
+    import javafx.scene.control.ButtonType;
+    import javafx.scene.input.MouseEvent;
+    import results.ShowResults;
 
-        import java.util.Optional;
+
+    import java.util.Optional;
 
 public class Patient {
     private final SimpleIntegerProperty id;
