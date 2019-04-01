@@ -1,11 +1,2 @@
-# Projekt_sql
-
-## Diagram bazy danych
-
-![alt text](https://github.com/esavaner/Projekt_sql/blob/master/diagramy/diagram.png)
-
-## Diagram przypadków użycia aplikacji
-
-![alt text](https://github.com/esavaner/Projekt_sql/blob/master/diagramy/use_case.png)
-
-
+#Clinic
+An application which lets patients to communicate with a clinic and vice versa. The app allows to make an appointment or watch medical tests results. It is implemented in Java (with JavaFX) and MySQL (with JDBC connector).  
